@@ -13,7 +13,7 @@ interface that can evolve without carrying old architectural debt.
 
 - Active project: `SudokuLab/SudokuLab.xcodeproj`
 - Legacy reference project: `Sudoku-Demo.xcodeproj` and `Sudoku-Demo/`
-- Minimum deployment target: iOS 26.4
+- Minimum deployment target: iOS 26.0
 - Persistence direction: SwiftData, local-only when models are introduced
 - Dependency injection: FactoryKit 3.0.1
 - Test dependency helpers: FactoryTesting
@@ -35,6 +35,8 @@ interface that can evolve without carrying old architectural debt.
 ```text
 SudokuLab/
   SudokuLab.xcodeproj       New active Xcode project
+  Packages/
+    SudokuCore/             Pure Swift Sudoku grid and rule model
   SudokuLab/                App source
     App/                    App root view, tabs, and root store
     Features/               Feature root screens
@@ -70,8 +72,33 @@ Format Swift code with the bundled Swift formatter:
 
 ```sh
 swift format format --recursive --in-place --parallel --configuration .swift-format \
-  SudokuLab/SudokuLab SudokuLab/SudokuLabTests SudokuLab/SudokuLabUITests
+  SudokuLab/SudokuLab SudokuLab/SudokuLabTests SudokuLab/SudokuLabUITests \
+  SudokuLab/Packages/SudokuCore
 ```
+
+Run the Sudoku core package tests:
+
+```sh
+swift test --package-path SudokuLab/Packages/SudokuCore
+```
+
+Lint Swift formatting:
+
+```sh
+swift format lint --recursive --configuration .swift-format \
+  SudokuLab/SudokuLab SudokuLab/SudokuLabTests SudokuLab/SudokuLabUITests \
+  SudokuLab/Packages/SudokuCore
+```
+
+Check for whitespace errors before committing:
+
+```sh
+git diff --check
+```
+
+For pure Swift package changes, prefer the SwiftPM test and formatter checks
+above. Run Xcode builds separately when validating app target integration or UI
+behavior, because simulator and user-cache access can be environment-specific.
 
 Resolve Swift packages:
 

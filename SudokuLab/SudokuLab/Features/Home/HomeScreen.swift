@@ -10,8 +10,16 @@ import SwiftUI
 struct HomeScreen: View {
     var body: some View {
         NavigationStack {
-            ContentUnavailableView("Home", systemImage: "house")
-                .navigationTitle("Home")
+            ContentUnavailableView {
+                Label {
+                    Text(AppTab.home.emptyStateTitle)
+                } icon: {
+                    Image(systemName: AppTab.home.systemImage)
+                }
+            } description: {
+                Text(AppTab.home.emptyStateDescription)
+            }
+            .navigationTitle(Text(AppTab.home.title))
         }
     }
 }

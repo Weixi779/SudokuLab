@@ -10,8 +10,16 @@ import SwiftUI
 struct RecordsScreen: View {
     var body: some View {
         NavigationStack {
-            ContentUnavailableView("Records", systemImage: "chart.bar")
-                .navigationTitle("Records")
+            ContentUnavailableView {
+                Label {
+                    Text(AppTab.records.emptyStateTitle)
+                } icon: {
+                    Image(systemName: AppTab.records.systemImage)
+                }
+            } description: {
+                Text(AppTab.records.emptyStateDescription)
+            }
+            .navigationTitle(Text(AppTab.records.title))
         }
     }
 }

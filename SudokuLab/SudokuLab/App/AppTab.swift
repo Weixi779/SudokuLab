@@ -15,16 +15,42 @@ enum AppTab: CaseIterable, Identifiable, Hashable {
 
     var id: Self { self }
 
-    var title: String {
+    var title: LocalizedStringResource {
         switch self {
         case .home:
-            "Home"
+            .tabHomeTitle
         case .game:
-            "Game"
+            .tabGameTitle
         case .records:
-            "Records"
+            .tabRecordsTitle
         case .settings:
-            "Settings"
+            .tabSettingsTitle
+        }
+    }
+
+    var emptyStateTitle: LocalizedStringResource {
+        switch self {
+        case .home:
+            .homeEmptyTitle
+        case .game:
+            .gameEmptyTitle
+        case .records:
+            .recordsEmptyTitle
+        case .settings:
+            .settingsEmptyTitle
+        }
+    }
+
+    var emptyStateDescription: LocalizedStringResource {
+        switch self {
+        case .home:
+            .homeEmptyDescription
+        case .game:
+            .gameEmptyDescription
+        case .records:
+            .recordsEmptyDescription
+        case .settings:
+            .settingsEmptyDescription
         }
     }
 

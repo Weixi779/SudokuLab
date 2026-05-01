@@ -23,13 +23,18 @@ struct RootView: View {
 
         TabView(selection: $store.selectedTab) {
             ForEach(AppTab.allCases) { tab in
-                screen(for: tab)
-                    .tabItem {
-                        Label(tab.title, systemImage: tab.systemImage)
+                Tab(value: tab) {
+                    screen(for: tab)
+                } label: {
+                    Label {
+                        Text(tab.title)
+                    } icon: {
+                        Image(systemName: tab.systemImage)
                     }
-                    .tag(tab)
+                }
             }
         }
+        .animation(.snappy(duration: 0.2), value: store.selectedTab)
     }
 
     @ViewBuilder

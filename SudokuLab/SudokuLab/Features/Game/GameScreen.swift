@@ -10,8 +10,16 @@ import SwiftUI
 struct GameScreen: View {
     var body: some View {
         NavigationStack {
-            ContentUnavailableView("Game", systemImage: "square.grid.3x3")
-                .navigationTitle("Game")
+            ContentUnavailableView {
+                Label {
+                    Text(AppTab.game.emptyStateTitle)
+                } icon: {
+                    Image(systemName: AppTab.game.systemImage)
+                }
+            } description: {
+                Text(AppTab.game.emptyStateDescription)
+            }
+            .navigationTitle(Text(AppTab.game.title))
         }
     }
 }

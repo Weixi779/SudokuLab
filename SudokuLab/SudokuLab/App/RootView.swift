@@ -34,7 +34,6 @@ struct RootView: View {
                 }
             }
         }
-        .animation(.snappy(duration: 0.2), value: store.selectedTab)
     }
 
     @ViewBuilder

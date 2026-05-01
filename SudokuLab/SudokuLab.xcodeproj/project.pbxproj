@@ -6,6 +6,11 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		60F000012FA6000000000001 /* FactoryKit in Frameworks */ = {isa = PBXBuildFile; productRef = 60F000042FA6000000000004 /* FactoryKit */; };
+		60F000022FA6000000000002 /* FactoryTesting in Frameworks */ = {isa = PBXBuildFile; productRef = 60F000052FA6000000000005 /* FactoryTesting */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		60BC8E002FA4CB8D00FB0032 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -52,6 +57,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				60F000012FA6000000000001 /* FactoryKit in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -59,6 +65,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				60F000022FA6000000000002 /* FactoryTesting in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -112,6 +119,7 @@
 			);
 			name = SudokuLab;
 			packageProductDependencies = (
+				60F000042FA6000000000004 /* FactoryKit */,
 			);
 			productName = SudokuLab;
 			productReference = 60BC8DF02FA4CB8C00FB0032 /* SudokuLab.app */;
@@ -135,6 +143,7 @@
 			);
 			name = SudokuLabTests;
 			packageProductDependencies = (
+				60F000052FA6000000000005 /* FactoryTesting */,
 			);
 			productName = SudokuLabTests;
 			productReference = 60BC8DFF2FA4CB8D00FB0032 /* SudokuLabTests.xctest */;
@@ -195,6 +204,9 @@
 			);
 			mainGroup = 60BC8DE72FA4CB8C00FB0032;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				60F000032FA6000000000003 /* XCRemoteSwiftPackageReference "Factory" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 60BC8DF12FA4CB8C00FB0032 /* Products */;
 			projectDirPath = "";
@@ -570,6 +582,30 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		60F000032FA6000000000003 /* XCRemoteSwiftPackageReference "Factory" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/hmlongco/Factory";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 3.0.1;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		60F000042FA6000000000004 /* FactoryKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 60F000032FA6000000000003 /* XCRemoteSwiftPackageReference "Factory" */;
+			productName = FactoryKit;
+		};
+		60F000052FA6000000000005 /* FactoryTesting */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 60F000032FA6000000000003 /* XCRemoteSwiftPackageReference "Factory" */;
+			productName = FactoryTesting;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 60BC8DE82FA4CB8C00FB0032 /* Project object */;
 }

@@ -7,7 +7,7 @@ Sudoku logic, app state, persistence, and UI.
 
 ```text
 App
-  Composition root, scene setup, dependency registration
+  Composition root, scene setup, root tabs
 
 Features
   Home, Game, Settings, Records
@@ -18,7 +18,8 @@ Core
   No SwiftUI, no SwiftData, no FactoryKit
 
 Infrastructure
-  SwiftData repositories, puzzle providers, cache, clocks, random sources
+  FactoryKit registration, SwiftData repositories, puzzle providers, cache,
+  clocks, random sources
 
 Shared
   Theme system, reusable controls, extensions, design tokens
@@ -55,6 +56,10 @@ infrastructure:
 - `RandomNumberGenerating`
 
 Production implementations live in infrastructure. Tests use fakes.
+
+The test target should use FactoryTesting, not a direct FactoryKit import.
+App-owned dependency entrypoints can expose the resolved objects that tests need
+without duplicating factories in the test module.
 
 ## Persistence
 

@@ -14,8 +14,9 @@ interface that can evolve without carrying old architectural debt.
 - Active project: `SudokuLab/SudokuLab.xcodeproj`
 - Legacy reference project: `Sudoku-Demo.xcodeproj` and `Sudoku-Demo/`
 - Minimum deployment target: iOS 26.4
-- Persistence baseline: SwiftData, local-only for now
-- Dependency injection direction: FactoryKit
+- Persistence direction: SwiftData, local-only when models are introduced
+- Dependency injection: FactoryKit 3.0.1
+- Test dependency helpers: FactoryTesting
 - Architecture direction: Swift Observation stores plus lightweight services
 - TCA: not part of the active architecture
 - CloudKit: deferred until the local data model is stable
@@ -35,6 +36,10 @@ interface that can evolve without carrying old architectural debt.
 SudokuLab/
   SudokuLab.xcodeproj       New active Xcode project
   SudokuLab/                App source
+    App/                    App root view, tabs, and root store
+    Features/               Feature root screens
+    Infrastructure/DI/      FactoryKit registrations and app dependency entrypoints
+    Resources/              Asset catalogs and app resources
   SudokuLabTests/           Unit tests
   SudokuLabUITests/         UI tests
 
@@ -66,6 +71,12 @@ Format Swift code with the bundled Swift formatter:
 ```sh
 swift format format --recursive --in-place --parallel --configuration .swift-format \
   SudokuLab/SudokuLab SudokuLab/SudokuLabTests SudokuLab/SudokuLabUITests
+```
+
+Resolve Swift packages:
+
+```sh
+xcodebuild -resolvePackageDependencies -project SudokuLab/SudokuLab.xcodeproj
 ```
 
 Use the legacy project only as source material while rebuilding. New production

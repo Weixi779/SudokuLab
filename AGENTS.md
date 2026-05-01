@@ -12,6 +12,9 @@ project is reference material unless a task explicitly asks to edit it.
 - Do not add CloudKit until the local SwiftData model is stable and there is a
   clear sync requirement.
 - Keep Sudoku solving and generation independent from SwiftUI and persistence.
+- App targets import `FactoryKit`; test targets use `FactoryTesting`.
+- Do not import `FactoryKit` directly into test targets. Route test access
+  through app-owned dependency entrypoints when needed.
 
 ## Architecture Rules
 

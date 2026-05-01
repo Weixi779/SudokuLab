@@ -3,14 +3,25 @@
 *.DS_Store
 
 # Xcode
+DerivedData/
+build/
+*.xcresult
 *.pbxuser
 *.mode1v3
 *.mode2v3
 *.perspectivev3
 *.xcuserstate
-*.xcworkspace/
-project.xcworkspace/
 xcuserdata/
 
 # Podfiles
 Pods/
+
+# Swift Package Manager
+.build/
+.swiftpm/
+
+# Legacy project local package resolution
+Sudoku-Demo.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/
+
+# Local machine notes
+CLAUDE.local.md

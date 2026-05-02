@@ -1,25 +1,24 @@
 public struct SudokuSquare: Equatable, Hashable, Comparable, Sendable {
-    public static let all: [SudokuSquare] = (0..<SudokuGrid.cellCount).map { rawValue in
+    public static let all: [SudokuSquare] = (0..<SudokuLayout.cellCount).map { rawValue in
         SudokuSquare(uncheckedRawValue: rawValue)
     }
 
     public let rawValue: Int
 
     public var rowIndex: Int {
-        rawValue / SudokuGrid.size
+        SudokuLayout.rowIndex(forSquareIndex: rawValue)
     }
 
     public var columnIndex: Int {
-        rawValue % SudokuGrid.size
+        SudokuLayout.columnIndex(forSquareIndex: rawValue)
     }
 
     public var blockIndex: Int {
-        (rowIndex / SudokuGrid.blockSide) * SudokuGrid.blockSide
-            + columnIndex / SudokuGrid.blockSide
+        SudokuLayout.blockIndex(rowIndex: rowIndex, columnIndex: columnIndex)
     }
 
     public init(_ rawValue: Int) throws {
-        guard (0..<SudokuGrid.cellCount).contains(rawValue) else {
+        guard (0..<SudokuLayout.cellCount).contains(rawValue) else {
             throw SudokuError.invalidSquareIndex(rawValue)
         }
 
@@ -27,13 +26,13 @@ public struct SudokuSquare: Equatable, Hashable, Comparable, Sendable {
     }
 
     public init(rowIndex: Int, columnIndex: Int) throws {
-        guard (0..<SudokuGrid.size).contains(rowIndex),
-            (0..<SudokuGrid.size).contains(columnIndex)
+        guard (0..<SudokuLayout.size).contains(rowIndex),
+            (0..<SudokuLayout.size).contains(columnIndex)
         else {
             throw SudokuError.invalidSquare(rowIndex: rowIndex, columnIndex: columnIndex)
         }
 
-        self.rawValue = rowIndex * SudokuGrid.size + columnIndex
+        self.rawValue = SudokuLayout.squareIndex(rowIndex: rowIndex, columnIndex: columnIndex)
     }
 
     public static func < (lhs: SudokuSquare, rhs: SudokuSquare) -> Bool {

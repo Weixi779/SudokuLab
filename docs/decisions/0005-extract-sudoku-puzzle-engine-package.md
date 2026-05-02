@@ -4,27 +4,32 @@ Date: 2026-05-02
 
 ## Status
 
-Accepted
+Accepted, amended by [0006](0006-refine-sudoku-package-boundaries.md)
+
+2026-05-03 amendment: `SudokuPuzzleEngine` now depends on `SudokuCore` for
+shared topology and validation issue coordinates. The old `PuzzleUnit` API is
+removed.
 
 ## Context
 
 Sudoku solving, numeric validation, solution counting, uniqueness checks,
 generation, and future difficulty rating are pure puzzle-computation concerns.
 They should stay independent from SwiftUI, SwiftData, FactoryKit, and the
-app-facing semantic model in `SudokuCore`.
+app-facing semantic model now isolated in `SudokuDomain`.
 
-`SudokuCore` expresses domain meaning such as clues, entries, houses, and rule
-violations. The puzzle engine needs a smaller numeric contract that can be
-optimized internally without changing app/domain API names.
+`SudokuCore` expresses shared Sudoku topology such as digits, squares, houses,
+and duplicate primitives. The puzzle engine keeps a numeric `PuzzleGrid`
+contract while using those shared Core concepts for coordinates and validation
+results.
 
 ## Decision
 
 Create a local Swift package named `SudokuPuzzleEngine` under
 `SudokuLab/Packages/SudokuPuzzleEngine`.
 
-The package is independent from `SudokuCore`. Neither package imports the other.
-App features or adapters are responsible for converting between domain grids and
-engine grids when both are needed.
+The package depends on `SudokuCore` and remains independent from
+`SudokuDomain`. App features or adapters are responsible for converting between
+domain grids and engine grids when both are needed.
 
 The package currently supports only standard 9x9 Sudoku. Public API terms use:
 
@@ -32,7 +37,6 @@ The package currently supports only standard 9x9 Sudoku. Public API terms use:
 - `PuzzleGridError` for invalid cell count or digit input.
 - `Solver` for solving, solution counting, and uniqueness checks.
 - `Validator` for composable validation capabilities.
-- `PuzzleUnit` and `PuzzleUnitError` for checked row, column, and block units.
 - `RulesValidator` for row, column, and block duplicate checks.
 - `SolvedGridValidator` for filled, rule-valid solution grids.
 - `UniqueSolutionValidator` for puzzle uniqueness checks.
@@ -73,6 +77,6 @@ future work.
 - Package tests use ordinary `import SudokuPuzzleEngine` to verify the public
   API boundary.
 - The app can link `SudokuPuzzleEngine` without making `SudokuCore` depend on
-  puzzle-computation internals.
+  puzzle-computation internals or `SudokuDomain`.
 - Benchmarks can be added later to compare internal solver/generator strategies
   without changing public callers.

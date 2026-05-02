@@ -1,12 +1,14 @@
+import SudokuCore
+
 public enum PuzzleGridError: Error, Equatable, Sendable {
     case invalidCellCount(value: Int, expected: Int)
     case invalidDigit(Int)
 }
 
 public struct PuzzleGrid: Equatable, Hashable, Sendable {
-    public static let size = 9
-    public static let cellCount = size * size
-    public static let blockSide = 3
+    public static let size = SudokuLayout.size
+    public static let cellCount = SudokuLayout.cellCount
+    public static let blockSide = SudokuLayout.blockSide
 
     private let values: [Int]
 
@@ -37,7 +39,7 @@ public struct PuzzleGrid: Equatable, Hashable, Sendable {
     }
 
     public func value(row: Int, column: Int) -> Int {
-        values[row * Self.size + column]
+        values[SudokuLayout.squareIndex(rowIndex: row, columnIndex: column)]
     }
 
     public subscript(_ index: Int) -> Int {

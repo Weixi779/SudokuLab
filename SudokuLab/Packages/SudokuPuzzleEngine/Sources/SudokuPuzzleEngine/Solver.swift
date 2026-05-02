@@ -1,3 +1,5 @@
+import SudokuCore
+
 public struct Solver: Sendable {
     public init() {}
 
@@ -21,7 +23,7 @@ public struct Solver: Sendable {
 }
 
 private struct SolverState {
-    private static let allCandidatesMask = (1 << PuzzleGrid.size) - 1
+    private static let allCandidatesMask = (1 << SudokuLayout.size) - 1
 
     var cells: [Int]
 
@@ -31,17 +33,17 @@ private struct SolverState {
 
     init?(_ grid: PuzzleGrid) {
         cells = grid.cells
-        rowMasks = Array(repeating: 0, count: PuzzleGrid.size)
-        columnMasks = Array(repeating: 0, count: PuzzleGrid.size)
-        blockMasks = Array(repeating: 0, count: PuzzleGrid.size)
+        rowMasks = Array(repeating: 0, count: SudokuLayout.size)
+        columnMasks = Array(repeating: 0, count: SudokuLayout.size)
+        blockMasks = Array(repeating: 0, count: SudokuLayout.size)
 
         for index in cells.indices {
             let digit = cells[index]
             guard digit != 0 else { continue }
 
-            let row = Self.rowIndex(for: index)
-            let column = Self.columnIndex(for: index)
-            let block = Self.blockIndex(row: row, column: column)
+            let row = SudokuLayout.rowIndex(forSquareIndex: index)
+            let column = SudokuLayout.columnIndex(forSquareIndex: index)
+            let block = SudokuLayout.blockIndex(rowIndex: row, columnIndex: column)
             let bit = Self.bit(for: digit)
 
             guard rowMasks[row] & bit == 0,
@@ -134,17 +136,17 @@ private struct SolverState {
     }
 
     private func candidatesMask(at index: Int) -> Int {
-        let row = Self.rowIndex(for: index)
-        let column = Self.columnIndex(for: index)
-        let block = Self.blockIndex(row: row, column: column)
+        let row = SudokuLayout.rowIndex(forSquareIndex: index)
+        let column = SudokuLayout.columnIndex(forSquareIndex: index)
+        let block = SudokuLayout.blockIndex(rowIndex: row, columnIndex: column)
 
         return Self.allCandidatesMask & ~(rowMasks[row] | columnMasks[column] | blockMasks[block])
     }
 
     private mutating func place(_ digit: Int, at index: Int, bit: Int) {
-        let row = Self.rowIndex(for: index)
-        let column = Self.columnIndex(for: index)
-        let block = Self.blockIndex(row: row, column: column)
+        let row = SudokuLayout.rowIndex(forSquareIndex: index)
+        let column = SudokuLayout.columnIndex(forSquareIndex: index)
+        let block = SudokuLayout.blockIndex(rowIndex: row, columnIndex: column)
 
         cells[index] = digit
         rowMasks[row] |= bit
@@ -153,26 +155,14 @@ private struct SolverState {
     }
 
     private mutating func remove(at index: Int, bit: Int) {
-        let row = Self.rowIndex(for: index)
-        let column = Self.columnIndex(for: index)
-        let block = Self.blockIndex(row: row, column: column)
+        let row = SudokuLayout.rowIndex(forSquareIndex: index)
+        let column = SudokuLayout.columnIndex(forSquareIndex: index)
+        let block = SudokuLayout.blockIndex(rowIndex: row, columnIndex: column)
 
         cells[index] = 0
         rowMasks[row] &= ~bit
         columnMasks[column] &= ~bit
         blockMasks[block] &= ~bit
-    }
-
-    private static func rowIndex(for index: Int) -> Int {
-        index / PuzzleGrid.size
-    }
-
-    private static func columnIndex(for index: Int) -> Int {
-        index % PuzzleGrid.size
-    }
-
-    private static func blockIndex(row: Int, column: Int) -> Int {
-        (row / PuzzleGrid.blockSide) * PuzzleGrid.blockSide + column / PuzzleGrid.blockSide
     }
 
     private static func bit(for digit: Int) -> Int {

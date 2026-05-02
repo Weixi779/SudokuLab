@@ -1,3 +1,5 @@
+import SudokuCore
+
 public enum SudokuCell: Equatable, Hashable, Sendable {
     case empty
     case clue(SudokuDigit)

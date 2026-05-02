@@ -1,3 +1,5 @@
+import SudokuCore
+
 public struct Generator<Random: RandomNumberGenerator & Sendable>: Sendable {
     private var randomNumberGenerator: Random
 
@@ -28,8 +30,8 @@ public struct Generator<Random: RandomNumberGenerator & Sendable>: Sendable {
         -> PuzzleGrid
     {
         var puzzleCells = solution.cells
-        var clueCount = PuzzleGrid.cellCount
-        var removalOrder = Array(0..<PuzzleGrid.cellCount)
+        var clueCount = SudokuLayout.cellCount
+        var removalOrder = Array(0..<SudokuLayout.cellCount)
         let validator = ShortCircuitCompositeValidator(RulesValidator(), UniqueSolutionValidator())
 
         removalOrder.shuffle(using: &randomNumberGenerator)
@@ -68,7 +70,7 @@ public struct Generator<Random: RandomNumberGenerator & Sendable>: Sendable {
         case .locallyMinimal:
             return nil
         case .targetClueCount(let targetClueCount):
-            guard (0...PuzzleGrid.cellCount).contains(targetClueCount) else {
+            guard (0...SudokuLayout.cellCount).contains(targetClueCount) else {
                 throw GeneratorError.invalidTargetClueCount(targetClueCount)
             }
 

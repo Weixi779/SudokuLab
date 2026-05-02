@@ -1,53 +1,63 @@
+import SudokuCore
 import SudokuPuzzleEngine
 import Testing
 
 @Suite
 struct ValidatorTests {
-    @Test func puzzleUnitRejectsInvalidIndex() {
-        #expect(throws: PuzzleUnitError.invalidIndex(kind: .row, index: 9)) {
-            _ = try PuzzleUnit.row(9)
-        }
-    }
-
     @Test func rulesValidatorAcceptsValidPartialGrid() throws {
         try RulesValidator().validate(try PuzzleGrid(cells: standardPuzzle))
     }
 
     @Test func rulesValidatorReportsRowDuplicate() throws {
         let grid = try PuzzleGrid(cells: cells([(0, 0, 5), (0, 3, 5)]))
-        let row = try PuzzleUnit.row(0)
+        let expected = ValidationFailure(issues: [
+            .duplicateDigit(
+                digit: try SudokuDigit(5),
+                house: try SudokuHouse.row(0),
+                squares: [
+                    try SudokuSquare(rowIndex: 0, columnIndex: 0),
+                    try SudokuSquare(rowIndex: 0, columnIndex: 3),
+                ]
+            )
+        ])
 
-        #expect(
-            throws: ValidationFailure(issues: [
-                .duplicateDigit(digit: 5, unit: row, cellIndices: [0, 3])
-            ])
-        ) {
+        #expect(throws: expected) {
             try RulesValidator().validate(grid)
         }
     }
 
     @Test func rulesValidatorReportsColumnDuplicate() throws {
         let grid = try PuzzleGrid(cells: cells([(0, 0, 5), (3, 0, 5)]))
-        let column = try PuzzleUnit.column(0)
+        let expected = ValidationFailure(issues: [
+            .duplicateDigit(
+                digit: try SudokuDigit(5),
+                house: try SudokuHouse.column(0),
+                squares: [
+                    try SudokuSquare(rowIndex: 0, columnIndex: 0),
+                    try SudokuSquare(rowIndex: 3, columnIndex: 0),
+                ]
+            )
+        ])
 
-        #expect(
-            throws: ValidationFailure(issues: [
-                .duplicateDigit(digit: 5, unit: column, cellIndices: [0, 27])
-            ])
-        ) {
+        #expect(throws: expected) {
             try RulesValidator().validate(grid)
         }
     }
 
     @Test func rulesValidatorReportsBlockDuplicate() throws {
         let grid = try PuzzleGrid(cells: cells([(0, 0, 5), (1, 1, 5)]))
-        let block = try PuzzleUnit.block(0)
+        let expected = ValidationFailure(issues: [
+            .duplicateDigit(
+                digit: try SudokuDigit(5),
+                house: try SudokuHouse.block(0),
+                squares: [
+                    try SudokuSquare(rowIndex: 0, columnIndex: 0),
+                    try SudokuSquare(rowIndex: 1, columnIndex: 1),
+                ]
+            )
+        ])
 
-        #expect(
-            throws: ValidationFailure(issues: [
-                .duplicateDigit(digit: 5, unit: block, cellIndices: [0, 10])
-            ])
-        ) {
+        #expect(throws: expected) {
             try RulesValidator().validate(grid)
         }
     }
@@ -62,7 +72,7 @@ struct ValidatorTests {
             try SolvedGridValidator().validate(grid)
         }
 
-        #expect(failure.issues == [.emptyCells(cellIndices: emptyCellIndices(in: standardPuzzle))])
+        #expect(failure.issues == [.emptyCells(squares: emptySquares(in: standardPuzzle))])
     }
 
     @Test func uniqueSolutionValidatorAcceptsUniquePuzzle() throws {
@@ -121,14 +131,17 @@ struct ValidatorTests {
         var cells = Array(repeating: 0, count: PuzzleGrid.cellCount)
 
         for (row, column, digit) in entries {
-            cells[row * PuzzleGrid.size + column] = digit
+            cells[SudokuLayout.squareIndex(rowIndex: row, columnIndex: column)] = digit
         }
 
         return cells
     }
 
-    private func emptyCellIndices(in cells: [Int]) -> [Int] {
-        cells.indices.filter { cells[$0] == 0 }
+    private func emptySquares(in cells: [Int]) -> [SudokuSquare] {
+        cells.indices.compactMap { index in
+            guard cells[index] == 0 else { return nil }
+            return try? SudokuSquare(index)
+        }
     }
 
     private struct StaticValidator: Validator {

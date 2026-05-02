@@ -15,10 +15,12 @@
 - Add FactoryKit and register initial local services.
 - Add a minimal theme system and app settings surface.
 
-## Phase 2: SudokuCore
+## Phase 2: Sudoku Packages
 
-- Extract the domain grid, cells, houses, clues, entries, and validator into a
-  pure Swift `SudokuCore` package.
+- Extract shared Sudoku topology, coordinates, houses, and duplicate primitives
+  into a pure Swift `SudokuCore` package.
+- Extract the app-facing grid, cells, clues, entries, and player rule validator
+  into a pure Swift `SudokuDomain` package.
 - Extract the pure Swift `SudokuPuzzleEngine` package for solving, validation,
   solution counting, uniqueness checks, generation, and future rating.
 - Add deterministic solver, validator, uniqueness, and generated-puzzle tests

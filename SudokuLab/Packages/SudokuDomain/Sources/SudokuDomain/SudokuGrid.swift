@@ -1,7 +1,9 @@
+import SudokuCore
+
 public struct SudokuGrid: Equatable, Sendable {
-    public static let size = 9
-    public static let cellCount = size * size
-    public static let blockSide = 3
+    public static let size = SudokuLayout.size
+    public static let cellCount = SudokuLayout.cellCount
+    public static let blockSide = SudokuLayout.blockSide
 
     private var cells: [SudokuCell]
 
@@ -11,7 +13,7 @@ public struct SudokuGrid: Equatable, Sendable {
 
     public init(cells: [SudokuCell]) throws {
         guard cells.count == Self.cellCount else {
-            throw SudokuError.invalidCellCount(value: cells.count, expected: Self.cellCount)
+            throw SudokuDomainError.invalidCellCount(value: cells.count, expected: Self.cellCount)
         }
 
         self.cells = cells
@@ -19,7 +21,7 @@ public struct SudokuGrid: Equatable, Sendable {
 
     public init(clues: [Int?]) throws {
         guard clues.count == Self.cellCount else {
-            throw SudokuError.invalidCellCount(value: clues.count, expected: Self.cellCount)
+            throw SudokuDomainError.invalidCellCount(value: clues.count, expected: Self.cellCount)
         }
 
         cells = try clues.map { rawValue in
@@ -40,7 +42,7 @@ public struct SudokuGrid: Equatable, Sendable {
         let cell = self[square]
 
         guard !cell.isClue else {
-            throw SudokuError.cannotChangeClue(square)
+            throw SudokuDomainError.cannotChangeClue(square)
         }
 
         cells[square.rawValue] = digit.map(SudokuCell.entry) ?? .empty

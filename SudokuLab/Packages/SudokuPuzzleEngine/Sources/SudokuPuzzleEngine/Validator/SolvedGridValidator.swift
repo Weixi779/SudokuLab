@@ -3,10 +3,10 @@ public struct SolvedGridValidator: Validator {
 
     public func validate(_ grid: PuzzleGrid) throws {
         var issues = ValidationIssues.duplicateIssues(in: grid)
-        let emptyCellIndices = ValidationIssues.emptyCellIndices(in: grid)
+        let emptySquares = ValidationIssues.emptySquares(in: grid)
 
-        if !emptyCellIndices.isEmpty {
-            issues.append(.emptyCells(cellIndices: emptyCellIndices))
+        if !emptySquares.isEmpty {
+            issues.append(.emptyCells(squares: emptySquares))
         }
 
         try ValidationFailure.throwIfNeeded(issues)

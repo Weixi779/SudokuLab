@@ -36,7 +36,8 @@ interface that can evolve without carrying old architectural debt.
 SudokuLab/
   SudokuLab.xcodeproj       New active Xcode project
   Packages/
-    SudokuCore/             Pure Swift Sudoku domain grid and rule model
+    SudokuCore/             Shared Sudoku topology, coordinates, and primitives
+    SudokuDomain/           App-facing grid, cells, and player rule model
     SudokuPuzzleEngine/     Pure Swift Sudoku solving, validation, and generation
   SudokuLab/                App source
     App/                    App root view, tabs, and root store
@@ -74,13 +75,20 @@ Format Swift code with the bundled Swift formatter:
 ```sh
 swift format format --recursive --in-place --parallel --configuration .swift-format \
   SudokuLab/SudokuLab SudokuLab/SudokuLabTests SudokuLab/SudokuLabUITests \
-  SudokuLab/Packages/SudokuCore SudokuLab/Packages/SudokuPuzzleEngine
+  SudokuLab/Packages/SudokuCore SudokuLab/Packages/SudokuDomain \
+  SudokuLab/Packages/SudokuPuzzleEngine
 ```
 
 Run the Sudoku core package tests:
 
 ```sh
 swift test --package-path SudokuLab/Packages/SudokuCore
+```
+
+Run the Sudoku domain package tests:
+
+```sh
+swift test --package-path SudokuLab/Packages/SudokuDomain
 ```
 
 Run the Sudoku puzzle engine package tests:
@@ -94,7 +102,8 @@ Lint Swift formatting:
 ```sh
 swift format lint --recursive --configuration .swift-format \
   SudokuLab/SudokuLab SudokuLab/SudokuLabTests SudokuLab/SudokuLabUITests \
-  SudokuLab/Packages/SudokuCore SudokuLab/Packages/SudokuPuzzleEngine
+  SudokuLab/Packages/SudokuCore SudokuLab/Packages/SudokuDomain \
+  SudokuLab/Packages/SudokuPuzzleEngine
 ```
 
 Check for whitespace errors before committing:

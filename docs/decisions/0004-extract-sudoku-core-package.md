@@ -4,7 +4,11 @@ Date: 2026-05-01
 
 ## Status
 
-Accepted
+Accepted, amended by [0006](0006-refine-sudoku-package-boundaries.md)
+
+2026-05-03 amendment: app-facing grid and player rule semantics moved to
+`SudokuDomain`; `SudokuCore` now owns only shared topology, coordinate, digit,
+house, and duplicate primitives.
 
 ## Context
 
@@ -21,14 +25,15 @@ entries.
 Create a local Swift package named `SudokuCore` under
 `SudokuLab/Packages/SudokuCore`.
 
-The package owns the pure Swift Sudoku domain model and rule validation. It
-currently supports only standard 9x9 Sudoku. The size constants remain
-centralized as validation checks rather than scattered literals. Dynamic sizes,
-4x4 puzzles, 16x16 puzzles, candidate notes, and peers are future decisions.
+The package originally owned the pure Swift Sudoku domain model and rule
+validation. After ADR 0006, `SudokuCore` owns the shared foundation and
+`SudokuDomain` owns app-facing grid and player rule validation. The shared
+foundation currently supports only standard 9x9 Sudoku. Dynamic sizes, 4x4
+puzzles, 16x16 puzzles, candidate notes, and peers are future decisions.
 
 Solving, solution counting, generation, and difficulty scoring belong in a
-separate pure puzzle engine package. That package must stay independent from
-`SudokuCore`; app features or adapters compose the two packages.
+separate pure puzzle engine package. After ADR 0006, that package depends on
+`SudokuCore` for shared topology but remains independent from `SudokuDomain`.
 
 Public API terms use:
 
@@ -47,10 +52,11 @@ usage.
 
 ## Consequences
 
-- App targets can depend on `SudokuCore`, but `SudokuCore` does not depend on
-  SwiftUI, SwiftData, FactoryKit, or FactoryTesting.
+- App targets can depend on `SudokuDomain` and `SudokuPuzzleEngine`, while
+  `SudokuCore` remains free of SwiftUI, SwiftData, FactoryKit, and
+  FactoryTesting.
 - Core tests run in the package test target and use ordinary `import
   SudokuCore` to verify the public API boundary.
 - App unit tests remain focused on app shell and store behavior.
-- Future app stores and persistence records should consume the package model
-  rather than reimplementing Sudoku rules.
+- Future app stores and persistence records should consume `SudokuDomain`
+  models rather than reimplementing player-grid rules.

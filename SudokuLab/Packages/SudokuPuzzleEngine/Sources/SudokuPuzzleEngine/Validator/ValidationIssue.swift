@@ -1,6 +1,8 @@
+import SudokuCore
+
 public enum ValidationIssue: Error, Equatable, Hashable, Sendable {
-    case duplicateDigit(digit: Int, unit: PuzzleUnit, cellIndices: [Int])
-    case emptyCells(cellIndices: [Int])
+    case duplicateDigit(digit: SudokuDigit, house: SudokuHouse, squares: [SudokuSquare])
+    case emptyCells(squares: [SudokuSquare])
     case noSolution
     case multipleSolutions
 }

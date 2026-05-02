@@ -37,6 +37,7 @@ SudokuLab/
   SudokuLab.xcodeproj       New active Xcode project
   Packages/
     SudokuCore/             Pure Swift Sudoku domain grid and rule model
+    SudokuPuzzleEngine/     Pure Swift Sudoku solving and puzzle engine
   SudokuLab/                App source
     App/                    App root view, tabs, and root store
     Features/               Feature root screens
@@ -73,7 +74,7 @@ Format Swift code with the bundled Swift formatter:
 ```sh
 swift format format --recursive --in-place --parallel --configuration .swift-format \
   SudokuLab/SudokuLab SudokuLab/SudokuLabTests SudokuLab/SudokuLabUITests \
-  SudokuLab/Packages/SudokuCore
+  SudokuLab/Packages/SudokuCore SudokuLab/Packages/SudokuPuzzleEngine
 ```
 
 Run the Sudoku core package tests:
@@ -82,12 +83,18 @@ Run the Sudoku core package tests:
 swift test --package-path SudokuLab/Packages/SudokuCore
 ```
 
+Run the Sudoku puzzle engine package tests:
+
+```sh
+swift test --package-path SudokuLab/Packages/SudokuPuzzleEngine
+```
+
 Lint Swift formatting:
 
 ```sh
 swift format lint --recursive --configuration .swift-format \
   SudokuLab/SudokuLab SudokuLab/SudokuLabTests SudokuLab/SudokuLabUITests \
-  SudokuLab/Packages/SudokuCore
+  SudokuLab/Packages/SudokuCore SudokuLab/Packages/SudokuPuzzleEngine
 ```
 
 Check for whitespace errors before committing:

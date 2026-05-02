@@ -26,10 +26,10 @@ Shared
   Theme system, reusable controls, extensions, design tokens
 ```
 
-`SudokuCore` owns the domain-facing Sudoku model. A separate
-`SudokuPuzzleEngine` package owns pure puzzle computation. The packages should
-compile and test without the app target and should not depend on each other;
-app features or adapters compose them.
+`SudokuCore` owns the domain-facing Sudoku model. `SudokuPuzzleEngine` owns
+pure puzzle computation. The packages should compile and test without the app
+target and should not depend on each other; app features or adapters compose
+them.
 
 ## State Management
 

@@ -27,8 +27,8 @@ centralized as validation checks rather than scattered literals. Dynamic sizes,
 4x4 puzzles, 16x16 puzzles, candidate notes, and peers are future decisions.
 
 Solving, solution counting, generation, and difficulty scoring belong in a
-separate pure puzzle engine package. That future package must stay independent
-from `SudokuCore`; app features or adapters compose the two packages.
+separate pure puzzle engine package. That package must stay independent from
+`SudokuCore`; app features or adapters compose the two packages.
 
 Public API terms use:
 

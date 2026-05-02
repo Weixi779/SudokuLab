@@ -15,7 +15,8 @@ Features
 
 Core packages
   SudokuCore domain model, clues, entries, houses, and rule validation
-  SudokuPuzzleEngine pure solving, solution counting, generation, and rating
+  SudokuPuzzleEngine pure solving, validation, solution counting, generation,
+  and rating
   No SwiftUI, no SwiftData, no FactoryKit
 
 Infrastructure

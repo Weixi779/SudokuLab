@@ -26,13 +26,13 @@ struct SudokuCoreTests {
         #expect(first.rawValue == 0)
         #expect(first.rowIndex == 0)
         #expect(first.columnIndex == 0)
-        #expect(first.boxIndex == 0)
+        #expect(first.blockIndex == 0)
         #expect(last.rawValue == 80)
         #expect(last.rowIndex == 8)
         #expect(last.columnIndex == 8)
-        #expect(last.boxIndex == 8)
+        #expect(last.blockIndex == 8)
         #expect(center.rawValue == 40)
-        #expect(center.boxIndex == 4)
+        #expect(center.blockIndex == 4)
         #expect(SudokuSquare.all.count == SudokuGrid.cellCount)
     }
 
@@ -54,23 +54,23 @@ struct SudokuCoreTests {
     @Test func houseAcceptsValidBoundsAndHasStableOrder() throws {
         let row = try SudokuHouse(kind: .row, index: 8)
         let column = try SudokuHouse(kind: .column, index: 8)
-        let box = try SudokuHouse(kind: .box, index: 8)
+        let block = try SudokuHouse(kind: .block, index: 8)
 
         #expect(row.squares.map(\.rawValue) == Array(72...80))
         #expect(column.squares.map(\.rawValue) == stride(from: 8, through: 80, by: 9).map { $0 })
-        #expect(box.squares.map(\.rawValue) == [60, 61, 62, 69, 70, 71, 78, 79, 80])
+        #expect(block.squares.map(\.rawValue) == [60, 61, 62, 69, 70, 71, 78, 79, 80])
         #expect(SudokuHouse.all.count == 27)
         #expect(SudokuHouse.all.prefix(9).allSatisfy { $0.kind == .row })
         #expect(SudokuHouse.all.dropFirst(9).prefix(9).allSatisfy { $0.kind == .column })
-        #expect(SudokuHouse.all.dropFirst(18).allSatisfy { $0.kind == .box })
+        #expect(SudokuHouse.all.dropFirst(18).allSatisfy { $0.kind == .block })
     }
 
     @Test func houseRejectsInvalidIndex() {
         #expect(throws: SudokuError.invalidHouseIndex(kind: .row, index: -1)) {
             try SudokuHouse(kind: .row, index: -1)
         }
-        #expect(throws: SudokuError.invalidHouseIndex(kind: .box, index: 9)) {
-            try SudokuHouse(kind: .box, index: 9)
+        #expect(throws: SudokuError.invalidHouseIndex(kind: .block, index: 9)) {
+            try SudokuHouse(kind: .block, index: 9)
         }
     }
 
@@ -79,7 +79,7 @@ struct SudokuCoreTests {
 
         #expect(SudokuGrid.size == 9)
         #expect(SudokuGrid.cellCount == 81)
-        #expect(SudokuGrid.boxSide == 3)
+        #expect(SudokuGrid.blockSide == 3)
         #expect(grid[try SudokuSquare(0)] == .empty)
         #expect(grid.cell(at: try SudokuSquare(80)) == .empty)
     }
@@ -168,14 +168,14 @@ struct SudokuCoreTests {
         )
     }
 
-    @Test func boxDuplicateProducesExactViolation() throws {
+    @Test func blockDuplicateProducesExactViolation() throws {
         let grid = try SudokuGrid(clues: clues([(0, 0, 5), (1, 1, 5)]))
 
         #expect(
             SudokuRules().validate(grid) == [
                 .duplicateDigit(
                     try SudokuDigit(5),
-                    house: try SudokuHouse(kind: .box, index: 0),
+                    house: try SudokuHouse(kind: .block, index: 0),
                     squares: [
                         try SudokuSquare(rowIndex: 0, columnIndex: 0),
                         try SudokuSquare(rowIndex: 1, columnIndex: 1),

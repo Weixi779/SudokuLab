@@ -17,10 +17,12 @@
 
 ## Phase 2: SudokuCore
 
-- Extract board, puzzle, solver, generator, and validator into a pure Swift
-  package.
-- Add deterministic solver tests and uniqueness tests.
-- Add generated-puzzle stress tests with seeded randomness.
+- Extract the domain grid, cells, houses, clues, entries, and validator into a
+  pure Swift `SudokuCore` package.
+- Add a separate pure Swift `SudokuPuzzleEngine` package for solving, solution
+  counting, uniqueness checks, future generation, and future rating.
+- Add deterministic solver tests, uniqueness tests, and future generated-puzzle
+  stress tests with seeded randomness.
 
 ## Phase 3: Game Feature
 

@@ -13,8 +13,9 @@ Features
   Home, Game, Settings, Records
   SwiftUI views plus small observable stores
 
-Core
-  Sudoku board, puzzle, solver, generator, validation, difficulty scoring
+Core packages
+  SudokuCore domain model, clues, entries, houses, and rule validation
+  SudokuPuzzleEngine pure solving, solution counting, generation, and rating
   No SwiftUI, no SwiftData, no FactoryKit
 
 Infrastructure
@@ -25,8 +26,10 @@ Shared
   Theme system, reusable controls, extensions, design tokens
 ```
 
-The future `SudokuCore` package should own the `Core` layer. It should compile
-and test without the app target.
+`SudokuCore` owns the domain-facing Sudoku model. A separate
+`SudokuPuzzleEngine` package owns pure puzzle computation. The packages should
+compile and test without the app target and should not depend on each other;
+app features or adapters compose them.
 
 ## State Management
 

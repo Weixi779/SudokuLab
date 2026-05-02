@@ -24,7 +24,7 @@ interface that can evolve without carrying old architectural debt.
 ## Goals
 
 - Rebuild the app shell under the `SudokuLab` name.
-- Extract Sudoku solving and puzzle generation into a pure Swift package.
+- Keep Sudoku domain models and puzzle computation in pure Swift packages.
 - Keep game state, persistence, and UI separated enough to test each layer.
 - Support themes, game progress, history, and statistics through local data.
 - Keep the app offline-first, with remote puzzle sources treated as optional
@@ -36,7 +36,7 @@ interface that can evolve without carrying old architectural debt.
 SudokuLab/
   SudokuLab.xcodeproj       New active Xcode project
   Packages/
-    SudokuCore/             Pure Swift Sudoku grid and rule model
+    SudokuCore/             Pure Swift Sudoku domain grid and rule model
   SudokuLab/                App source
     App/                    App root view, tabs, and root store
     Features/               Feature root screens

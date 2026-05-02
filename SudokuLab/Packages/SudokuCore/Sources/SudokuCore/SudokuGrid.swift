@@ -1,7 +1,7 @@
 public struct SudokuGrid: Equatable, Sendable {
     public static let size = 9
     public static let cellCount = size * size
-    public static let boxSide = 3
+    public static let blockSide = 3
 
     private var cells: [SudokuCell]
 

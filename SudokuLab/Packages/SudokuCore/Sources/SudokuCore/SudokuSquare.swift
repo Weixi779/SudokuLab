@@ -13,8 +13,9 @@ public struct SudokuSquare: Equatable, Hashable, Comparable, Sendable {
         rawValue % SudokuGrid.size
     }
 
-    public var boxIndex: Int {
-        (rowIndex / SudokuGrid.boxSide) * SudokuGrid.boxSide + columnIndex / SudokuGrid.boxSide
+    public var blockIndex: Int {
+        (rowIndex / SudokuGrid.blockSide) * SudokuGrid.blockSide
+            + columnIndex / SudokuGrid.blockSide
     }
 
     public init(_ rawValue: Int) throws {

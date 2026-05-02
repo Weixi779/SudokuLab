@@ -2,13 +2,13 @@ public struct SudokuHouse: Equatable, Hashable, Sendable {
     public enum Kind: Equatable, Hashable, Sendable {
         case row
         case column
-        case box
+        case block
     }
 
     public static let all: [SudokuHouse] =
         (0..<SudokuGrid.size).map { SudokuHouse(uncheckedKind: .row, index: $0) }
         + (0..<SudokuGrid.size).map { SudokuHouse(uncheckedKind: .column, index: $0) }
-        + (0..<SudokuGrid.size).map { SudokuHouse(uncheckedKind: .box, index: $0) }
+        + (0..<SudokuGrid.size).map { SudokuHouse(uncheckedKind: .block, index: $0) }
 
     public let kind: Kind
     public let index: Int
@@ -23,8 +23,8 @@ public struct SudokuHouse: Equatable, Hashable, Sendable {
             (0..<SudokuGrid.size).map { rowIndex in
                 SudokuSquare(uncheckedRawValue: rowIndex * SudokuGrid.size + index)
             }
-        case .box:
-            boxSquares
+        case .block:
+            blockSquares
         }
     }
 
@@ -37,12 +37,12 @@ public struct SudokuHouse: Equatable, Hashable, Sendable {
         self.index = index
     }
 
-    private var boxSquares: [SudokuSquare] {
-        let firstRow = (index / SudokuGrid.boxSide) * SudokuGrid.boxSide
-        let firstColumn = (index % SudokuGrid.boxSide) * SudokuGrid.boxSide
+    private var blockSquares: [SudokuSquare] {
+        let firstRow = (index / SudokuGrid.blockSide) * SudokuGrid.blockSide
+        let firstColumn = (index % SudokuGrid.blockSide) * SudokuGrid.blockSide
 
-        return (firstRow..<(firstRow + SudokuGrid.boxSide)).flatMap { rowIndex in
-            (firstColumn..<(firstColumn + SudokuGrid.boxSide)).map { columnIndex in
+        return (firstRow..<(firstRow + SudokuGrid.blockSide)).flatMap { rowIndex in
+            (firstColumn..<(firstColumn + SudokuGrid.blockSide)).map { columnIndex in
                 SudokuSquare(uncheckedRawValue: rowIndex * SudokuGrid.size + columnIndex)
             }
         }

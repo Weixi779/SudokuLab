@@ -37,7 +37,7 @@ SudokuLab/
   SudokuLab.xcodeproj       New active Xcode project
   Packages/
     SudokuCore/             Pure Swift Sudoku domain grid and rule model
-    SudokuPuzzleEngine/     Pure Swift Sudoku solving, validation, and puzzle engine
+    SudokuPuzzleEngine/     Pure Swift Sudoku solving, validation, and generation
   SudokuLab/                App source
     App/                    App root view, tabs, and root store
     Features/               Feature root screens

@@ -19,10 +19,10 @@
 
 - Extract the domain grid, cells, houses, clues, entries, and validator into a
   pure Swift `SudokuCore` package.
-- Extract the pure Swift `SudokuPuzzleEngine` package for solving, solution
-  counting, uniqueness checks, future generation, and future rating.
-- Add deterministic solver tests, uniqueness tests, and future generated-puzzle
-  stress tests with seeded randomness.
+- Extract the pure Swift `SudokuPuzzleEngine` package for solving, validation,
+  solution counting, uniqueness checks, generation, and future rating.
+- Add deterministic solver, validator, uniqueness, and generated-puzzle tests
+  with seeded randomness.
 
 ## Phase 3: Game Feature
 

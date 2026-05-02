@@ -39,6 +39,11 @@ The package currently supports only standard 9x9 Sudoku. Public API terms use:
 - `CompositeValidator` for aggregating failures from several validators.
 - `ShortCircuitCompositeValidator` for stopping at the first failed validator.
 - `ValidationIssue` and `ValidationFailure` for thrown validation failures.
+- `Generator` for seeded or system-random puzzle generation.
+- `GeneratorGoal` and `GeneratorOptions` for locally minimal or target clue
+  count generation.
+- `GeneratedPuzzle` for returning a puzzle with its solution.
+- `GeneratorError` for invalid target clue counts and generation failures.
 
 `0` represents an empty cell. Digits `1...9` represent filled cells. Existing
 duplicate digits are accepted by `PuzzleGrid` as structurally valid input, then
@@ -54,8 +59,14 @@ remaining values cell choice. DLX, exact cover, or other algorithms can replace
 or supplement this internally later. Algorithm names are not part of the public
 API.
 
-Generation, difficulty rating, candidate notes, and human solving technique
-analysis remain future work.
+The initial generator creates a randomized complete solution, then removes clues
+while preserving uniqueness. The default `.locallyMinimal` goal keeps every
+accepted removal and stops after all cells have been considered; this is local
+minimality for the generated removal order, not a proof of globally minimum clue
+count.
+
+Difficulty rating, candidate notes, and human solving technique analysis remain
+future work.
 
 ## Consequences
 

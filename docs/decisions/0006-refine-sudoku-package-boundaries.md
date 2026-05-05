@@ -39,7 +39,7 @@ Keep `SudokuCore` as the shared foundation package. It owns only `Digit` and
 results, standard 9x9 topology, or engine-facing validation issues.
 
 Create `SudokuDomain` for app-facing Sudoku state. It depends on `SudokuCore`
-and owns `SudokuCell`, `SudokuGrid`, `SudokuRules`, `SudokuRuleViolation`, and
+and owns `Cell`, `Board`, `SudokuRules`, `SudokuRuleViolation`, and
 `SudokuDomainError`.
 
 Make `SudokuPuzzleEngine` depend on `SudokuCore` for shared primitive values.
@@ -51,7 +51,7 @@ through package dependencies unless app code directly imports it.
 
 ## Consequences
 
-- `SudokuCore` no longer references `SudokuGrid`.
+- `SudokuCore` no longer references app-facing board state.
 - `SudokuDomain` and `SudokuPuzzleEngine` share foundation types without
   depending on each other.
 - Standard 9x9 constants and row, column, and block group generation are

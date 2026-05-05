@@ -3,13 +3,13 @@ import SudokuCore
 public struct SudokuRules: Sendable {
     public init() {}
 
-    public func validate(_ grid: SudokuGrid) -> [SudokuRuleViolation] {
+    public func validate(_ grid: Board) -> [SudokuRuleViolation] {
         StandardGrid.ruleGroups.flatMap { positions in
             duplicateDigits(in: positions, grid: grid)
         }
     }
 
-    private func duplicateDigits(in group: [Position], grid: SudokuGrid)
+    private func duplicateDigits(in group: [Position], grid: Board)
         -> [SudokuRuleViolation]
     {
         var positionsByDigit: [Digit: [Position]] = [:]

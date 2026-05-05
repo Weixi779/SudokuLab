@@ -1,6 +1,6 @@
 import SudokuCore
 
-public enum SudokuCell: Equatable, Hashable, Sendable {
+public enum Cell: Equatable, Hashable, Sendable {
     case empty
     case clue(Digit)
     case entry(Digit)

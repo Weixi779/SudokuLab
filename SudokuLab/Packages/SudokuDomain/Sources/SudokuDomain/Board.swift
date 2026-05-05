@@ -1,17 +1,17 @@
 import SudokuCore
 
-public struct SudokuGrid: Equatable, Sendable {
+public struct Board: Equatable, Sendable {
     public static let size = StandardGrid.size
     public static let cellCount = StandardGrid.cellCount
     public static let blockSide = StandardGrid.blockSide
 
-    private var cells: [SudokuCell]
+    private var cells: [Cell]
 
     public init() {
         cells = Array(repeating: .empty, count: Self.cellCount)
     }
 
-    public init(cells: [SudokuCell]) throws {
+    public init(cells: [Cell]) throws {
         guard cells.count == Self.cellCount else {
             throw SudokuDomainError.invalidCellCount(value: cells.count, expected: Self.cellCount)
         }
@@ -30,11 +30,11 @@ public struct SudokuGrid: Equatable, Sendable {
         }
     }
 
-    public subscript(_ position: Position) -> SudokuCell {
+    public subscript(_ position: Position) -> Cell {
         cells[index(for: position)]
     }
 
-    public func cell(at position: Position) -> SudokuCell {
+    public func cell(at position: Position) -> Cell {
         self[position]
     }
 
@@ -45,7 +45,7 @@ public struct SudokuGrid: Equatable, Sendable {
             throw SudokuDomainError.cannotChangeClue(position)
         }
 
-        cells[index(for: position)] = digit.map(SudokuCell.entry) ?? .empty
+        cells[index(for: position)] = digit.map(Cell.entry) ?? .empty
     }
 
     private func index(for position: Position) -> Int {

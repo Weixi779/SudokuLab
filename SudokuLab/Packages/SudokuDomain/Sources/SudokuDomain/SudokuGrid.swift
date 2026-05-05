@@ -1,9 +1,9 @@
 import SudokuCore
 
 public struct SudokuGrid: Equatable, Sendable {
-    public static let size = SudokuLayout.size
-    public static let cellCount = SudokuLayout.cellCount
-    public static let blockSide = SudokuLayout.blockSide
+    public static let size = StandardGrid.size
+    public static let cellCount = StandardGrid.cellCount
+    public static let blockSide = StandardGrid.blockSide
 
     private var cells: [SudokuCell]
 
@@ -49,6 +49,6 @@ public struct SudokuGrid: Equatable, Sendable {
     }
 
     private func index(for position: Position) -> Int {
-        SudokuLayout.squareIndex(rowIndex: position.row, columnIndex: position.column)
+        StandardGrid.index(for: position)
     }
 }

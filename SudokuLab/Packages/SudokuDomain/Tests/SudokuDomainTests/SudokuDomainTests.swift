@@ -62,7 +62,6 @@ struct SudokuDomainTests {
             SudokuRules().validate(grid) == [
                 .duplicateDigit(
                     Digit(5),
-                    house: try SudokuHouse(kind: .row, index: 0),
                     positions: [
                         Position(row: 0, column: 0),
                         Position(row: 0, column: 3),
@@ -79,7 +78,6 @@ struct SudokuDomainTests {
             SudokuRules().validate(grid) == [
                 .duplicateDigit(
                     Digit(5),
-                    house: try SudokuHouse(kind: .column, index: 0),
                     positions: [
                         Position(row: 0, column: 0),
                         Position(row: 3, column: 0),
@@ -96,7 +94,6 @@ struct SudokuDomainTests {
             SudokuRules().validate(grid) == [
                 .duplicateDigit(
                     Digit(5),
-                    house: try SudokuHouse(kind: .block, index: 0),
                     positions: [
                         Position(row: 0, column: 0),
                         Position(row: 1, column: 1),
@@ -120,7 +117,6 @@ struct SudokuDomainTests {
             SudokuRules().validate(grid) == [
                 .duplicateDigit(
                     Digit(5),
-                    house: try SudokuHouse(kind: .row, index: 0),
                     positions: [
                         Position(row: 0, column: 0),
                         Position(row: 0, column: 3),

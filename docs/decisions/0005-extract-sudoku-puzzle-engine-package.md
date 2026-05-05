@@ -7,8 +7,8 @@ Date: 2026-05-02
 Accepted, amended by [0006](0006-refine-sudoku-package-boundaries.md)
 
 2026-05-03 amendment: `SudokuPuzzleEngine` now depends on `SudokuCore` for
-shared topology and validation issue coordinates. The old `PuzzleUnit` API is
-removed.
+shared primitive values and validation issue coordinates. The old `PuzzleUnit`
+API is removed.
 
 ## Context
 
@@ -17,10 +17,9 @@ generation, and future difficulty rating are pure puzzle-computation concerns.
 They should stay independent from SwiftUI, SwiftData, FactoryKit, and the
 app-facing semantic model now isolated in `SudokuDomain`.
 
-`SudokuCore` expresses shared Sudoku topology such as digits, positions, houses,
-and duplicate primitives. The puzzle engine keeps a numeric `PuzzleGrid`
-contract while using those shared Core concepts for coordinates and validation
-results.
+`SudokuCore` expresses shared primitive values such as digits and positions.
+The puzzle engine keeps a numeric `PuzzleGrid` contract and owns its standard
+9x9 topology internally.
 
 ## Decision
 

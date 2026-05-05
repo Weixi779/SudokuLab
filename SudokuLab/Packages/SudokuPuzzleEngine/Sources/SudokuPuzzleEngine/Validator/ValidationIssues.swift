@@ -2,17 +2,17 @@ import SudokuCore
 
 enum ValidationIssues {
     static func duplicateIssues(in grid: PuzzleGrid) -> [ValidationIssue] {
-        SudokuHouse.all.flatMap { house in
-            duplicateIssues(in: house, grid: grid)
+        StandardGrid.ruleGroups.flatMap { positions in
+            duplicateIssues(in: positions, grid: grid)
         }
     }
 
-    private static func duplicateIssues(in house: SudokuHouse, grid: PuzzleGrid)
+    private static func duplicateIssues(in group: [Position], grid: PuzzleGrid)
         -> [ValidationIssue]
     {
         var positionsByDigit: [Digit: [Position]] = [:]
 
-        for position in house.positions {
+        for position in group {
             let digit = grid[row: position.row, column: position.column]
             guard digit != 0 else { continue }
             positionsByDigit[Digit(digit), default: []].append(position)
@@ -21,7 +21,7 @@ enum ValidationIssues {
         return positionsByDigit.keys.sorted().compactMap { digit in
             let positions = positionsByDigit[digit, default: []].sorted()
             guard positions.count > 1 else { return nil }
-            return .duplicateDigit(digit: digit, house: house, positions: positions)
+            return .duplicateDigit(digit: digit, positions: positions)
         }
     }
 
@@ -31,8 +31,8 @@ enum ValidationIssues {
         for index in grid.cells.indices where grid[index] == 0 {
             positions.append(
                 Position(
-                    row: SudokuLayout.rowIndex(forSquareIndex: index),
-                    column: SudokuLayout.columnIndex(forSquareIndex: index)
+                    row: StandardGrid.row(forIndex: index),
+                    column: StandardGrid.column(forIndex: index)
                 )
             )
         }

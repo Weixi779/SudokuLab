@@ -7,8 +7,7 @@ Date: 2026-05-01
 Accepted, amended by [0006](0006-refine-sudoku-package-boundaries.md)
 
 2026-05-03 amendment: app-facing grid and player rule semantics moved to
-`SudokuDomain`; `SudokuCore` now owns only shared topology, coordinate, digit,
-house, and duplicate primitives.
+`SudokuDomain`; `SudokuCore` now owns only shared primitive values.
 
 ## Context
 
@@ -26,23 +25,20 @@ Create a local Swift package named `SudokuCore` under
 `SudokuLab/Packages/SudokuCore`.
 
 The package originally owned the pure Swift Sudoku domain model and rule
-validation. After ADR 0006, `SudokuCore` owns the shared foundation and
-`SudokuDomain` owns app-facing grid and player rule validation. The shared
-foundation currently supports only standard 9x9 Sudoku. Dynamic sizes, 4x4
-puzzles, 16x16 puzzles, candidate notes, and peers are future decisions.
+validation. After ADR 0006, `SudokuCore` owns only shared primitive values and
+`SudokuDomain` owns app-facing grid and player rule validation. Standard 9x9
+topology is kept in Domain and Engine internals until a real topology
+abstraction is needed.
 
 Solving, solution counting, generation, and difficulty scoring belong in a
 separate pure puzzle engine package. After ADR 0006, that package depends on
-`SudokuCore` for shared topology but remains independent from `SudokuDomain`.
+`SudokuCore` for shared primitive values but remains independent from
+`SudokuDomain`.
 
 Public API terms use:
 
-- `Grid` for the whole 9x9 puzzle state.
+- `Digit` for a symbol identity.
 - `Position` for a row and column coordinate.
-- `Cell` for the content state at a position.
-- `House` for a row, column, or block.
-- `Clue` for an initial fixed digit.
-- `Entry` for a user-filled digit.
 
 These terms align with Nikoli's
 [`Sudoku` rules](https://www.nikoli.com/en/puzzles/sudoku/),

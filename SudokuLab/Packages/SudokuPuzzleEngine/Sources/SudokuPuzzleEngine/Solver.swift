@@ -23,7 +23,7 @@ public struct Solver: Sendable {
 }
 
 private struct SolverState {
-    private static let allCandidatesMask = (1 << SudokuLayout.size) - 1
+    private static let allCandidatesMask = (1 << StandardGrid.size) - 1
 
     var cells: [Int]
 
@@ -33,17 +33,17 @@ private struct SolverState {
 
     init?(_ grid: PuzzleGrid) {
         cells = grid.cells
-        rowMasks = Array(repeating: 0, count: SudokuLayout.size)
-        columnMasks = Array(repeating: 0, count: SudokuLayout.size)
-        blockMasks = Array(repeating: 0, count: SudokuLayout.size)
+        rowMasks = Array(repeating: 0, count: StandardGrid.size)
+        columnMasks = Array(repeating: 0, count: StandardGrid.size)
+        blockMasks = Array(repeating: 0, count: StandardGrid.size)
 
         for index in cells.indices {
             let digit = cells[index]
             guard digit != 0 else { continue }
 
-            let row = SudokuLayout.rowIndex(forSquareIndex: index)
-            let column = SudokuLayout.columnIndex(forSquareIndex: index)
-            let block = SudokuLayout.blockIndex(rowIndex: row, columnIndex: column)
+            let row = StandardGrid.row(forIndex: index)
+            let column = StandardGrid.column(forIndex: index)
+            let block = StandardGrid.block(row: row, column: column)
             let bit = Self.bit(for: digit)
 
             guard rowMasks[row] & bit == 0,
@@ -136,17 +136,17 @@ private struct SolverState {
     }
 
     private func candidatesMask(at index: Int) -> Int {
-        let row = SudokuLayout.rowIndex(forSquareIndex: index)
-        let column = SudokuLayout.columnIndex(forSquareIndex: index)
-        let block = SudokuLayout.blockIndex(rowIndex: row, columnIndex: column)
+        let row = StandardGrid.row(forIndex: index)
+        let column = StandardGrid.column(forIndex: index)
+        let block = StandardGrid.block(row: row, column: column)
 
         return Self.allCandidatesMask & ~(rowMasks[row] | columnMasks[column] | blockMasks[block])
     }
 
     private mutating func place(_ digit: Int, at index: Int, bit: Int) {
-        let row = SudokuLayout.rowIndex(forSquareIndex: index)
-        let column = SudokuLayout.columnIndex(forSquareIndex: index)
-        let block = SudokuLayout.blockIndex(rowIndex: row, columnIndex: column)
+        let row = StandardGrid.row(forIndex: index)
+        let column = StandardGrid.column(forIndex: index)
+        let block = StandardGrid.block(row: row, column: column)
 
         cells[index] = digit
         rowMasks[row] |= bit
@@ -155,9 +155,9 @@ private struct SolverState {
     }
 
     private mutating func remove(at index: Int, bit: Int) {
-        let row = SudokuLayout.rowIndex(forSquareIndex: index)
-        let column = SudokuLayout.columnIndex(forSquareIndex: index)
-        let block = SudokuLayout.blockIndex(rowIndex: row, columnIndex: column)
+        let row = StandardGrid.row(forIndex: index)
+        let column = StandardGrid.column(forIndex: index)
+        let block = StandardGrid.block(row: row, column: column)
 
         cells[index] = 0
         rowMasks[row] &= ~bit

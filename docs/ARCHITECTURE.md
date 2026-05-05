@@ -14,7 +14,7 @@ Features
   SwiftUI views plus small observable stores
 
 Core packages
-  SudokuCore shared Sudoku topology, coordinates, houses, and duplicate primitives
+  SudokuCore shared Sudoku primitive values
   SudokuDomain app-facing domain model, clues, entries, and player rule validation
   SudokuPuzzleEngine pure solving, validation, solution counting, generation,
   and rating
@@ -28,9 +28,9 @@ Shared
   Theme system, reusable controls, extensions, design tokens
 ```
 
-`SudokuCore` owns only shared Sudoku foundation types and topology helpers.
-`SudokuDomain` owns the app-facing player grid model. `SudokuPuzzleEngine` owns
-pure puzzle computation. `SudokuDomain` and `SudokuPuzzleEngine` may depend on
+`SudokuCore` owns only shared primitive values. `SudokuDomain` owns the
+app-facing player grid model. `SudokuPuzzleEngine` owns pure puzzle
+computation. `SudokuDomain` and `SudokuPuzzleEngine` may depend on
 `SudokuCore`, but they must not depend on each other. The app composes domain
 and engine behavior through feature stores and adapters.
 

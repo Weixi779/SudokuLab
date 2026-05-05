@@ -13,7 +13,6 @@ struct ValidatorTests {
         let expected = ValidationFailure(issues: [
             .duplicateDigit(
                 digit: Digit(5),
-                house: try SudokuHouse.row(0),
                 positions: [
                     Position(row: 0, column: 0),
                     Position(row: 0, column: 3),
@@ -31,7 +30,6 @@ struct ValidatorTests {
         let expected = ValidationFailure(issues: [
             .duplicateDigit(
                 digit: Digit(5),
-                house: try SudokuHouse.column(0),
                 positions: [
                     Position(row: 0, column: 0),
                     Position(row: 3, column: 0),
@@ -49,7 +47,6 @@ struct ValidatorTests {
         let expected = ValidationFailure(issues: [
             .duplicateDigit(
                 digit: Digit(5),
-                house: try SudokuHouse.block(0),
                 positions: [
                     Position(row: 0, column: 0),
                     Position(row: 1, column: 1),
@@ -131,7 +128,7 @@ struct ValidatorTests {
         var cells = Array(repeating: 0, count: PuzzleGrid.cellCount)
 
         for (row, column, digit) in entries {
-            cells[SudokuLayout.squareIndex(rowIndex: row, columnIndex: column)] = digit
+            cells[row * PuzzleGrid.size + column] = digit
         }
 
         return cells
@@ -141,8 +138,8 @@ struct ValidatorTests {
         cells.indices.compactMap { index in
             guard cells[index] == 0 else { return nil }
             return Position(
-                row: SudokuLayout.rowIndex(forSquareIndex: index),
-                column: SudokuLayout.columnIndex(forSquareIndex: index)
+                row: index / PuzzleGrid.size,
+                column: index % PuzzleGrid.size
             )
         }
     }

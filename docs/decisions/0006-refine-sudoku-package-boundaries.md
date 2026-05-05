@@ -10,6 +10,10 @@ belong to puzzle configuration or higher-level pipeline code.
 digit checks are validation behavior owned by `SudokuDomain` and
 `SudokuPuzzleEngine`.
 
+2026-05-05 amendment: `SudokuSquare` was narrowed and renamed to `Position`.
+Core positions store only row and column coordinates; index conversion, bounds,
+and block membership belong to topology or higher-level code.
+
 ## Status
 
 Accepted
@@ -27,9 +31,9 @@ and topology shared by every Sudoku module, while clues, entries, and
 ## Decision
 
 Keep `SudokuCore` as the shared foundation package. It owns `SudokuLayout`,
-`Digit`, `SudokuSquare`, `SudokuHouse`, and core coordinate errors. It does not
-define app-facing rule violations, duplicate scan results, or engine-facing
-validation issues.
+`Digit`, `Position`, `SudokuHouse`, and current house construction errors. It
+does not define app-facing rule violations, duplicate scan results, or
+engine-facing validation issues.
 
 Create `SudokuDomain` for app-facing Sudoku state. It depends on `SudokuCore`
 and owns `SudokuCell`, `SudokuGrid`, `SudokuRules`, `SudokuRuleViolation`, and
@@ -37,7 +41,7 @@ and owns `SudokuCell`, `SudokuGrid`, `SudokuRules`, `SudokuRuleViolation`, and
 
 Make `SudokuPuzzleEngine` depend on `SudokuCore` for shared topology and
 coordinate types. It must not depend on `SudokuDomain`. Its validation API uses
-`Digit`, `SudokuHouse`, and `SudokuSquare` instead of the old
+`Digit`, `SudokuHouse`, and `Position` instead of the old
 `PuzzleUnit` and integer cell-index result shape.
 
 The app links `SudokuDomain` and `SudokuPuzzleEngine`; `SudokuCore` enters

@@ -17,7 +17,7 @@ generation, and future difficulty rating are pure puzzle-computation concerns.
 They should stay independent from SwiftUI, SwiftData, FactoryKit, and the
 app-facing semantic model now isolated in `SudokuDomain`.
 
-`SudokuCore` expresses shared Sudoku topology such as digits, squares, houses,
+`SudokuCore` expresses shared Sudoku topology such as digits, positions, houses,
 and duplicate primitives. The puzzle engine keeps a numeric `PuzzleGrid`
 contract while using those shared Core concepts for coordinates and validation
 results.

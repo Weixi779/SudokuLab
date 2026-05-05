@@ -14,9 +14,9 @@ struct ValidatorTests {
             .duplicateDigit(
                 digit: Digit(5),
                 house: try SudokuHouse.row(0),
-                squares: [
-                    try SudokuSquare(rowIndex: 0, columnIndex: 0),
-                    try SudokuSquare(rowIndex: 0, columnIndex: 3),
+                positions: [
+                    Position(row: 0, column: 0),
+                    Position(row: 0, column: 3),
                 ]
             )
         ])
@@ -32,9 +32,9 @@ struct ValidatorTests {
             .duplicateDigit(
                 digit: Digit(5),
                 house: try SudokuHouse.column(0),
-                squares: [
-                    try SudokuSquare(rowIndex: 0, columnIndex: 0),
-                    try SudokuSquare(rowIndex: 3, columnIndex: 0),
+                positions: [
+                    Position(row: 0, column: 0),
+                    Position(row: 3, column: 0),
                 ]
             )
         ])
@@ -50,9 +50,9 @@ struct ValidatorTests {
             .duplicateDigit(
                 digit: Digit(5),
                 house: try SudokuHouse.block(0),
-                squares: [
-                    try SudokuSquare(rowIndex: 0, columnIndex: 0),
-                    try SudokuSquare(rowIndex: 1, columnIndex: 1),
+                positions: [
+                    Position(row: 0, column: 0),
+                    Position(row: 1, column: 1),
                 ]
             )
         ])
@@ -72,7 +72,7 @@ struct ValidatorTests {
             try SolvedGridValidator().validate(grid)
         }
 
-        #expect(failure.issues == [.emptyCells(squares: emptySquares(in: standardPuzzle))])
+        #expect(failure.issues == [.emptyCells(positions: emptyPositions(in: standardPuzzle))])
     }
 
     @Test func uniqueSolutionValidatorAcceptsUniquePuzzle() throws {
@@ -137,10 +137,13 @@ struct ValidatorTests {
         return cells
     }
 
-    private func emptySquares(in cells: [Int]) -> [SudokuSquare] {
+    private func emptyPositions(in cells: [Int]) -> [Position] {
         cells.indices.compactMap { index in
             guard cells[index] == 0 else { return nil }
-            return try? SudokuSquare(index)
+            return Position(
+                row: SudokuLayout.rowIndex(forSquareIndex: index),
+                column: SudokuLayout.columnIndex(forSquareIndex: index)
+            )
         }
     }
 

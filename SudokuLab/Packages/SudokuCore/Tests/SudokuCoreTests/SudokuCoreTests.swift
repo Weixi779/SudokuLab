@@ -23,37 +23,16 @@ struct SudokuCoreTests {
         #expect([nine, one].sorted() == [one, nine])
     }
 
-    @Test func squareAcceptsValidBoundsAndDerivesPosition() throws {
-        let first = try SudokuSquare(0)
-        let last = try SudokuSquare(80)
-        let center = try SudokuSquare(rowIndex: 4, columnIndex: 4)
+    @Test func positionStoresCoordinatesAndSorts() {
+        let topLeft = Position(row: 0, column: 0)
+        let center = Position(row: 4, column: 4)
+        let bottomRight = Position(row: 8, column: 8)
 
-        #expect(first.rawValue == 0)
-        #expect(first.rowIndex == 0)
-        #expect(first.columnIndex == 0)
-        #expect(first.blockIndex == 0)
-        #expect(last.rawValue == 80)
-        #expect(last.rowIndex == 8)
-        #expect(last.columnIndex == 8)
-        #expect(last.blockIndex == 8)
-        #expect(center.rawValue == 40)
-        #expect(center.blockIndex == 4)
-        #expect(SudokuSquare.all.count == SudokuLayout.cellCount)
-    }
-
-    @Test func squareRejectsInvalidValues() {
-        #expect(throws: SudokuError.invalidSquareIndex(-1)) {
-            try SudokuSquare(-1)
-        }
-        #expect(throws: SudokuError.invalidSquareIndex(81)) {
-            try SudokuSquare(81)
-        }
-        #expect(throws: SudokuError.invalidSquare(rowIndex: -1, columnIndex: 0)) {
-            try SudokuSquare(rowIndex: -1, columnIndex: 0)
-        }
-        #expect(throws: SudokuError.invalidSquare(rowIndex: 0, columnIndex: 9)) {
-            try SudokuSquare(rowIndex: 0, columnIndex: 9)
-        }
+        #expect(topLeft.row == 0)
+        #expect(topLeft.column == 0)
+        #expect(center.row == 4)
+        #expect(center.column == 4)
+        #expect([bottomRight, topLeft, center].sorted() == [topLeft, center, bottomRight])
     }
 
     @Test func houseAcceptsValidBoundsAndHasStableOrder() throws {
@@ -61,9 +40,16 @@ struct SudokuCoreTests {
         let column = try SudokuHouse.column(8)
         let block = try SudokuHouse.block(8)
 
-        #expect(row.squares.map(\.rawValue) == Array(72...80))
-        #expect(column.squares.map(\.rawValue) == stride(from: 8, through: 80, by: 9).map { $0 })
-        #expect(block.squares.map(\.rawValue) == [60, 61, 62, 69, 70, 71, 78, 79, 80])
+        #expect(row.positions == positions((0..<9).map { (8, $0) }))
+        #expect(column.positions == positions((0..<9).map { ($0, 8) }))
+        #expect(
+            block.positions
+                == positions([
+                    (6, 6), (6, 7), (6, 8),
+                    (7, 6), (7, 7), (7, 8),
+                    (8, 6), (8, 7), (8, 8),
+                ])
+        )
         #expect(SudokuHouse.all.count == 27)
         #expect(SudokuHouse.all.prefix(9).allSatisfy { $0.kind == .row })
         #expect(SudokuHouse.all.dropFirst(9).prefix(9).allSatisfy { $0.kind == .column })
@@ -77,5 +63,9 @@ struct SudokuCoreTests {
         #expect(throws: SudokuError.invalidHouseIndex(kind: .block, index: 9)) {
             try SudokuHouse.block(9)
         }
+    }
+
+    private func positions(_ values: [(Int, Int)]) -> [Position] {
+        values.map { Position(row: $0.0, column: $0.1) }
     }
 }

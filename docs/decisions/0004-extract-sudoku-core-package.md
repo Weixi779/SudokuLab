@@ -38,8 +38,8 @@ separate pure puzzle engine package. After ADR 0006, that package depends on
 Public API terms use:
 
 - `Grid` for the whole 9x9 puzzle state.
-- `Square` for a position identity within the grid.
-- `Cell` for the content state at a square.
+- `Position` for a row and column coordinate.
+- `Cell` for the content state at a position.
 - `House` for a row, column, or block.
 - `Clue` for an initial fixed digit.
 - `Entry` for a user-filled digit.

@@ -10,8 +10,8 @@ struct SudokuDomainTests {
         #expect(SudokuGrid.size == 9)
         #expect(SudokuGrid.cellCount == 81)
         #expect(SudokuGrid.blockSide == 3)
-        #expect(grid[try SudokuSquare(0)] == .empty)
-        #expect(grid.cell(at: try SudokuSquare(80)) == .empty)
+        #expect(grid[Position(row: 0, column: 0)] == .empty)
+        #expect(grid.cell(at: Position(row: 8, column: 8)) == .empty)
     }
 
     @Test func gridCanBeInitializedFromCells() throws {
@@ -21,7 +21,7 @@ struct SudokuDomainTests {
 
         let grid = try SudokuGrid(cells: cells)
 
-        #expect(grid[try SudokuSquare(0)] == .clue(digit))
+        #expect(grid[Position(row: 0, column: 0)] == .clue(digit))
     }
 
     @Test func gridCanBeInitializedFromClues() throws {
@@ -30,8 +30,8 @@ struct SudokuDomainTests {
 
         let grid = try SudokuGrid(clues: clues)
 
-        #expect(grid[try SudokuSquare(0)] == .clue(Digit(8)))
-        #expect(grid[try SudokuSquare(1)] == .empty)
+        #expect(grid[Position(row: 0, column: 0)] == .clue(Digit(8)))
+        #expect(grid[Position(row: 0, column: 1)] == .empty)
     }
 
     @Test func gridRejectsInvalidCellCount() {
@@ -63,9 +63,9 @@ struct SudokuDomainTests {
                 .duplicateDigit(
                     Digit(5),
                     house: try SudokuHouse(kind: .row, index: 0),
-                    squares: [
-                        try SudokuSquare(rowIndex: 0, columnIndex: 0),
-                        try SudokuSquare(rowIndex: 0, columnIndex: 3),
+                    positions: [
+                        Position(row: 0, column: 0),
+                        Position(row: 0, column: 3),
                     ]
                 )
             ]
@@ -80,9 +80,9 @@ struct SudokuDomainTests {
                 .duplicateDigit(
                     Digit(5),
                     house: try SudokuHouse(kind: .column, index: 0),
-                    squares: [
-                        try SudokuSquare(rowIndex: 0, columnIndex: 0),
-                        try SudokuSquare(rowIndex: 3, columnIndex: 0),
+                    positions: [
+                        Position(row: 0, column: 0),
+                        Position(row: 3, column: 0),
                     ]
                 )
             ]
@@ -97,9 +97,9 @@ struct SudokuDomainTests {
                 .duplicateDigit(
                     Digit(5),
                     house: try SudokuHouse(kind: .block, index: 0),
-                    squares: [
-                        try SudokuSquare(rowIndex: 0, columnIndex: 0),
-                        try SudokuSquare(rowIndex: 1, columnIndex: 1),
+                    positions: [
+                        Position(row: 0, column: 0),
+                        Position(row: 1, column: 1),
                     ]
                 )
             ]
@@ -114,16 +114,16 @@ struct SudokuDomainTests {
 
     @Test func clueAndEntryBothParticipateInViolations() throws {
         var grid = try SudokuGrid(clues: clues([(0, 0, 5)]))
-        try grid.setEntry(Digit(5), at: try SudokuSquare(rowIndex: 0, columnIndex: 3))
+        try grid.setEntry(Digit(5), at: Position(row: 0, column: 3))
 
         #expect(
             SudokuRules().validate(grid) == [
                 .duplicateDigit(
                     Digit(5),
                     house: try SudokuHouse(kind: .row, index: 0),
-                    squares: [
-                        try SudokuSquare(rowIndex: 0, columnIndex: 0),
-                        try SudokuSquare(rowIndex: 0, columnIndex: 3),
+                    positions: [
+                        Position(row: 0, column: 0),
+                        Position(row: 0, column: 3),
                     ]
                 )
             ]
@@ -132,27 +132,27 @@ struct SudokuDomainTests {
 
     @Test func entryCanBeSetReplacedAndCleared() throws {
         var grid = SudokuGrid()
-        let square = try SudokuSquare(rowIndex: 2, columnIndex: 4)
+        let position = Position(row: 2, column: 4)
 
-        try grid.setEntry(Digit(8), at: square)
-        #expect(grid[square] == .entry(Digit(8)))
+        try grid.setEntry(Digit(8), at: position)
+        #expect(grid[position] == .entry(Digit(8)))
 
-        try grid.setEntry(Digit(9), at: square)
-        #expect(grid[square] == .entry(Digit(9)))
+        try grid.setEntry(Digit(9), at: position)
+        #expect(grid[position] == .entry(Digit(9)))
 
-        try grid.setEntry(nil, at: square)
-        #expect(grid[square] == .empty)
+        try grid.setEntry(nil, at: position)
+        #expect(grid[position] == .empty)
     }
 
     @Test func clueRejectsAnyEntryChange() throws {
         var grid = try SudokuGrid(clues: clues([(0, 0, 5)]))
-        let square = try SudokuSquare(rowIndex: 0, columnIndex: 0)
+        let position = Position(row: 0, column: 0)
 
-        #expect(throws: SudokuDomainError.cannotChangeClue(square)) {
-            try grid.setEntry(Digit(8), at: square)
+        #expect(throws: SudokuDomainError.cannotChangeClue(position)) {
+            try grid.setEntry(Digit(8), at: position)
         }
-        #expect(throws: SudokuDomainError.cannotChangeClue(square)) {
-            try grid.setEntry(nil, at: square)
+        #expect(throws: SudokuDomainError.cannotChangeClue(position)) {
+            try grid.setEntry(nil, at: position)
         }
     }
 

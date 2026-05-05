@@ -13,28 +13,18 @@ public struct SudokuHouse: Equatable, Hashable, Sendable {
     public let kind: Kind
     public let index: Int
 
-    public var squares: [SudokuSquare] {
+    public var positions: [Position] {
         switch kind {
         case .row:
-            (0..<SudokuLayout.size).map { columnIndex in
-                SudokuSquare(
-                    uncheckedRawValue: SudokuLayout.squareIndex(
-                        rowIndex: index,
-                        columnIndex: columnIndex
-                    )
-                )
+            (0..<SudokuLayout.size).map { column in
+                Position(row: index, column: column)
             }
         case .column:
-            (0..<SudokuLayout.size).map { rowIndex in
-                SudokuSquare(
-                    uncheckedRawValue: SudokuLayout.squareIndex(
-                        rowIndex: rowIndex,
-                        columnIndex: index
-                    )
-                )
+            (0..<SudokuLayout.size).map { row in
+                Position(row: row, column: index)
             }
         case .block:
-            blockSquares
+            blockPositions
         }
     }
 
@@ -59,18 +49,13 @@ public struct SudokuHouse: Equatable, Hashable, Sendable {
         try SudokuHouse(kind: .block, index: index)
     }
 
-    private var blockSquares: [SudokuSquare] {
+    private var blockPositions: [Position] {
         let firstRow = (index / SudokuLayout.blockSide) * SudokuLayout.blockSide
         let firstColumn = (index % SudokuLayout.blockSide) * SudokuLayout.blockSide
 
-        return (firstRow..<(firstRow + SudokuLayout.blockSide)).flatMap { rowIndex in
-            (firstColumn..<(firstColumn + SudokuLayout.blockSide)).map { columnIndex in
-                SudokuSquare(
-                    uncheckedRawValue: SudokuLayout.squareIndex(
-                        rowIndex: rowIndex,
-                        columnIndex: columnIndex
-                    )
-                )
+        return (firstRow..<(firstRow + SudokuLayout.blockSide)).flatMap { row in
+            (firstColumn..<(firstColumn + SudokuLayout.blockSide)).map { column in
+                Position(row: row, column: column)
             }
         }
     }

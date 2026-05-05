@@ -1,5 +1,5 @@
 import SudokuCore
 
 public enum SudokuRuleViolation: Equatable, Hashable, Sendable {
-    case duplicateDigit(Digit, house: SudokuHouse, squares: [SudokuSquare])
+    case duplicateDigit(Digit, house: SudokuHouse, positions: [Position])
 }

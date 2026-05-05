@@ -12,17 +12,17 @@ public struct SudokuRules: Sendable {
     private func duplicateDigits(in house: SudokuHouse, grid: SudokuGrid)
         -> [SudokuRuleViolation]
     {
-        var squaresByDigit: [Digit: [SudokuSquare]] = [:]
+        var positionsByDigit: [Digit: [Position]] = [:]
 
-        for square in house.squares {
-            guard let digit = grid[square].digit else { continue }
-            squaresByDigit[digit, default: []].append(square)
+        for position in house.positions {
+            guard let digit = grid[position].digit else { continue }
+            positionsByDigit[digit, default: []].append(position)
         }
 
-        return squaresByDigit.keys.sorted().compactMap { digit in
-            let squares = squaresByDigit[digit, default: []].sorted()
-            guard squares.count > 1 else { return nil }
-            return .duplicateDigit(digit, house: house, squares: squares)
+        return positionsByDigit.keys.sorted().compactMap { digit in
+            let positions = positionsByDigit[digit, default: []].sorted()
+            guard positions.count > 1 else { return nil }
+            return .duplicateDigit(digit, house: house, positions: positions)
         }
     }
 }

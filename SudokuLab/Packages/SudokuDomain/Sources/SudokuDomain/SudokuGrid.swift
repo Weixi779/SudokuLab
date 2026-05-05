@@ -30,21 +30,25 @@ public struct SudokuGrid: Equatable, Sendable {
         }
     }
 
-    public subscript(_ square: SudokuSquare) -> SudokuCell {
-        cells[square.rawValue]
+    public subscript(_ position: Position) -> SudokuCell {
+        cells[index(for: position)]
     }
 
-    public func cell(at square: SudokuSquare) -> SudokuCell {
-        self[square]
+    public func cell(at position: Position) -> SudokuCell {
+        self[position]
     }
 
-    public mutating func setEntry(_ digit: Digit?, at square: SudokuSquare) throws {
-        let cell = self[square]
+    public mutating func setEntry(_ digit: Digit?, at position: Position) throws {
+        let cell = self[position]
 
         guard !cell.isClue else {
-            throw SudokuDomainError.cannotChangeClue(square)
+            throw SudokuDomainError.cannotChangeClue(position)
         }
 
-        cells[square.rawValue] = digit.map(SudokuCell.entry) ?? .empty
+        cells[index(for: position)] = digit.map(SudokuCell.entry) ?? .empty
+    }
+
+    private func index(for position: Position) -> Int {
+        SudokuLayout.squareIndex(rowIndex: position.row, columnIndex: position.column)
     }
 }

@@ -10,29 +10,33 @@ enum ValidationIssues {
     private static func duplicateIssues(in house: SudokuHouse, grid: PuzzleGrid)
         -> [ValidationIssue]
     {
-        var squaresByDigit: [Digit: [SudokuSquare]] = [:]
+        var positionsByDigit: [Digit: [Position]] = [:]
 
-        for square in house.squares {
-            let digit = grid[square.rawValue]
+        for position in house.positions {
+            let digit = grid[row: position.row, column: position.column]
             guard digit != 0 else { continue }
-            squaresByDigit[Digit(digit), default: []].append(square)
+            positionsByDigit[Digit(digit), default: []].append(position)
         }
 
-        return squaresByDigit.keys.sorted().compactMap { digit in
-            let squares = squaresByDigit[digit, default: []].sorted()
-            guard squares.count > 1 else { return nil }
-            return .duplicateDigit(digit: digit, house: house, squares: squares)
+        return positionsByDigit.keys.sorted().compactMap { digit in
+            let positions = positionsByDigit[digit, default: []].sorted()
+            guard positions.count > 1 else { return nil }
+            return .duplicateDigit(digit: digit, house: house, positions: positions)
         }
     }
 
-    static func emptySquares(in grid: PuzzleGrid) -> [SudokuSquare] {
-        var squares: [SudokuSquare] = []
+    static func emptyPositions(in grid: PuzzleGrid) -> [Position] {
+        var positions: [Position] = []
 
         for index in grid.cells.indices where grid[index] == 0 {
-            guard let square = try? SudokuSquare(index) else { continue }
-            squares.append(square)
+            positions.append(
+                Position(
+                    row: SudokuLayout.rowIndex(forSquareIndex: index),
+                    column: SudokuLayout.columnIndex(forSquareIndex: index)
+                )
+            )
         }
 
-        return squares
+        return positions
     }
 }

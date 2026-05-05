@@ -5,7 +5,7 @@ enum ValidationIssues {
         SudokuDuplicateScanner.duplicates { square in
             let digit = grid[square.rawValue]
             guard digit != 0 else { return nil }
-            return try? SudokuDigit(digit)
+            return Digit(digit)
         }.map { duplicate in
             .duplicateDigit(
                 digit: duplicate.digit,

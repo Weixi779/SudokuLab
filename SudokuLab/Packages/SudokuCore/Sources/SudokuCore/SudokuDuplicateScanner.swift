@@ -1,6 +1,6 @@
 public enum SudokuDuplicateScanner {
     public static func duplicates(
-        digitAt digitForSquare: (SudokuSquare) throws -> SudokuDigit?
+        digitAt digitForSquare: (SudokuSquare) throws -> Digit?
     ) rethrows -> [SudokuDuplicate] {
         try SudokuHouse.all.flatMap { house in
             try duplicates(in: house, digitAt: digitForSquare)
@@ -9,9 +9,9 @@ public enum SudokuDuplicateScanner {
 
     public static func duplicates(
         in house: SudokuHouse,
-        digitAt digitForSquare: (SudokuSquare) throws -> SudokuDigit?
+        digitAt digitForSquare: (SudokuSquare) throws -> Digit?
     ) rethrows -> [SudokuDuplicate] {
-        var squaresByDigit: [SudokuDigit: [SudokuSquare]] = [:]
+        var squaresByDigit: [Digit: [SudokuSquare]] = [:]
 
         for square in house.squares {
             guard let digit = try digitForSquare(square) else { continue }

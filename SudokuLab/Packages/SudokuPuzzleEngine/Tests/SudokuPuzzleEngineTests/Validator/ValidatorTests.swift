@@ -12,7 +12,7 @@ struct ValidatorTests {
         let grid = try PuzzleGrid(cells: cells([(0, 0, 5), (0, 3, 5)]))
         let expected = ValidationFailure(issues: [
             .duplicateDigit(
-                digit: try SudokuDigit(5),
+                digit: Digit(5),
                 house: try SudokuHouse.row(0),
                 squares: [
                     try SudokuSquare(rowIndex: 0, columnIndex: 0),
@@ -30,7 +30,7 @@ struct ValidatorTests {
         let grid = try PuzzleGrid(cells: cells([(0, 0, 5), (3, 0, 5)]))
         let expected = ValidationFailure(issues: [
             .duplicateDigit(
-                digit: try SudokuDigit(5),
+                digit: Digit(5),
                 house: try SudokuHouse.column(0),
                 squares: [
                     try SudokuSquare(rowIndex: 0, columnIndex: 0),
@@ -48,7 +48,7 @@ struct ValidatorTests {
         let grid = try PuzzleGrid(cells: cells([(0, 0, 5), (1, 1, 5)]))
         let expected = ValidationFailure(issues: [
             .duplicateDigit(
-                digit: try SudokuDigit(5),
+                digit: Digit(5),
                 house: try SudokuHouse.block(0),
                 squares: [
                     try SudokuSquare(rowIndex: 0, columnIndex: 0),

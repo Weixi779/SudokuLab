@@ -2,6 +2,10 @@
 
 Date: 2026-05-03
 
+2026-05-05 amendment: `SudokuDigit` was narrowed and renamed to `Digit`. Core
+digits are plain value identities; fixed digit sets and bounds validation
+belong to puzzle configuration or higher-level pipeline code.
+
 ## Status
 
 Accepted
@@ -19,7 +23,7 @@ and topology shared by every Sudoku module, while clues, entries, and
 ## Decision
 
 Keep `SudokuCore` as the shared foundation package. It owns `SudokuLayout`,
-`SudokuDigit`, `SudokuSquare`, `SudokuHouse`, core validation errors, and small
+`Digit`, `SudokuSquare`, `SudokuHouse`, core coordinate errors, and small
 duplicate scanning primitives. It does not define app-facing rule violations or
 engine-facing validation issues.
 
@@ -29,7 +33,7 @@ and owns `SudokuCell`, `SudokuGrid`, `SudokuRules`, `SudokuRuleViolation`, and
 
 Make `SudokuPuzzleEngine` depend on `SudokuCore` for shared topology and
 coordinate types. It must not depend on `SudokuDomain`. Its validation API uses
-`SudokuDigit`, `SudokuHouse`, and `SudokuSquare` instead of the old
+`Digit`, `SudokuHouse`, and `SudokuSquare` instead of the old
 `PuzzleUnit` and integer cell-index result shape.
 
 The app links `SudokuDomain` and `SudokuPuzzleEngine`; `SudokuCore` enters

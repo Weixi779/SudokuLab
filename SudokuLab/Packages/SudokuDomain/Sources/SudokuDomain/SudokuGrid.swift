@@ -24,9 +24,9 @@ public struct SudokuGrid: Equatable, Sendable {
             throw SudokuDomainError.invalidCellCount(value: clues.count, expected: Self.cellCount)
         }
 
-        cells = try clues.map { rawValue in
-            guard let rawValue else { return .empty }
-            return .clue(try SudokuDigit(rawValue))
+        cells = clues.map { value in
+            guard let value else { return .empty }
+            return .clue(Digit(value))
         }
     }
 
@@ -38,7 +38,7 @@ public struct SudokuGrid: Equatable, Sendable {
         self[square]
     }
 
-    public mutating func setEntry(_ digit: SudokuDigit?, at square: SudokuSquare) throws {
+    public mutating func setEntry(_ digit: Digit?, at square: SudokuSquare) throws {
         let cell = self[square]
 
         guard !cell.isClue else {

@@ -14,19 +14,13 @@ struct SudokuCoreTests {
         #expect(SudokuLayout.squareIndex(rowIndex: 8, columnIndex: 8) == 80)
     }
 
-    @Test func digitAcceptsValidBounds() throws {
-        #expect(try SudokuDigit(1).rawValue == 1)
-        #expect(try SudokuDigit(9).rawValue == 9)
-        #expect(SudokuDigit.all.map(\.rawValue) == Array(1...9))
-    }
+    @Test func digitStoresValueAndSorts() {
+        let one = Digit(1)
+        let nine = Digit(9)
 
-    @Test func digitRejectsInvalidValues() {
-        #expect(throws: SudokuError.invalidDigit(0)) {
-            try SudokuDigit(0)
-        }
-        #expect(throws: SudokuError.invalidDigit(10)) {
-            try SudokuDigit(10)
-        }
+        #expect(one.value == 1)
+        #expect(nine.value == 9)
+        #expect([nine, one].sorted() == [one, nine])
     }
 
     @Test func squareAcceptsValidBoundsAndDerivesPosition() throws {
@@ -86,8 +80,8 @@ struct SudokuCoreTests {
     }
 
     @Test func duplicateScannerFindsDuplicatesInStableHouseOrder() throws {
-        let five = try SudokuDigit(5)
-        let values: [Int: SudokuDigit] = [
+        let five = Digit(5)
+        let values: [Int: Digit] = [
             0: five,
             3: five,
             10: five,

@@ -2,16 +2,26 @@ import SudokuCore
 
 enum ValidationIssues {
     static func duplicateIssues(in grid: PuzzleGrid) -> [ValidationIssue] {
-        SudokuDuplicateScanner.duplicates { square in
+        SudokuHouse.all.flatMap { house in
+            duplicateIssues(in: house, grid: grid)
+        }
+    }
+
+    private static func duplicateIssues(in house: SudokuHouse, grid: PuzzleGrid)
+        -> [ValidationIssue]
+    {
+        var squaresByDigit: [Digit: [SudokuSquare]] = [:]
+
+        for square in house.squares {
             let digit = grid[square.rawValue]
-            guard digit != 0 else { return nil }
-            return Digit(digit)
-        }.map { duplicate in
-            .duplicateDigit(
-                digit: duplicate.digit,
-                house: duplicate.house,
-                squares: duplicate.squares
-            )
+            guard digit != 0 else { continue }
+            squaresByDigit[Digit(digit), default: []].append(square)
+        }
+
+        return squaresByDigit.keys.sorted().compactMap { digit in
+            let squares = squaresByDigit[digit, default: []].sorted()
+            guard squares.count > 1 else { return nil }
+            return .duplicateDigit(digit: digit, house: house, squares: squares)
         }
     }
 

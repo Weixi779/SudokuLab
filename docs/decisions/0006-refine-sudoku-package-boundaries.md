@@ -6,6 +6,10 @@ Date: 2026-05-03
 digits are plain value identities; fixed digit sets and bounds validation
 belong to puzzle configuration or higher-level pipeline code.
 
+2026-05-05 amendment: duplicate scanning was removed from `SudokuCore`. Repeated
+digit checks are validation behavior owned by `SudokuDomain` and
+`SudokuPuzzleEngine`.
+
 ## Status
 
 Accepted
@@ -23,9 +27,9 @@ and topology shared by every Sudoku module, while clues, entries, and
 ## Decision
 
 Keep `SudokuCore` as the shared foundation package. It owns `SudokuLayout`,
-`Digit`, `SudokuSquare`, `SudokuHouse`, core coordinate errors, and small
-duplicate scanning primitives. It does not define app-facing rule violations or
-engine-facing validation issues.
+`Digit`, `SudokuSquare`, `SudokuHouse`, and core coordinate errors. It does not
+define app-facing rule violations, duplicate scan results, or engine-facing
+validation issues.
 
 Create `SudokuDomain` for app-facing Sudoku state. It depends on `SudokuCore`
 and owns `SudokuCell`, `SudokuGrid`, `SudokuRules`, `SudokuRuleViolation`, and

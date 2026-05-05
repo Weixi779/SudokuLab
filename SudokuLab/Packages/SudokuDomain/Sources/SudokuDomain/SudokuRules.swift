@@ -4,14 +4,25 @@ public struct SudokuRules: Sendable {
     public init() {}
 
     public func validate(_ grid: SudokuGrid) -> [SudokuRuleViolation] {
-        SudokuDuplicateScanner.duplicates { square in
-            grid[square].digit
-        }.map { duplicate in
-            .duplicateDigit(
-                duplicate.digit,
-                house: duplicate.house,
-                squares: duplicate.squares
-            )
+        SudokuHouse.all.flatMap { house in
+            duplicateDigits(in: house, grid: grid)
+        }
+    }
+
+    private func duplicateDigits(in house: SudokuHouse, grid: SudokuGrid)
+        -> [SudokuRuleViolation]
+    {
+        var squaresByDigit: [Digit: [SudokuSquare]] = [:]
+
+        for square in house.squares {
+            guard let digit = grid[square].digit else { continue }
+            squaresByDigit[digit, default: []].append(square)
+        }
+
+        return squaresByDigit.keys.sorted().compactMap { digit in
+            let squares = squaresByDigit[digit, default: []].sorted()
+            guard squares.count > 1 else { return nil }
+            return .duplicateDigit(digit, house: house, squares: squares)
         }
     }
 }

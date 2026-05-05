@@ -78,38 +78,4 @@ struct SudokuCoreTests {
             try SudokuHouse.block(9)
         }
     }
-
-    @Test func duplicateScannerFindsDuplicatesInStableHouseOrder() throws {
-        let five = Digit(5)
-        let values: [Int: Digit] = [
-            0: five,
-            3: five,
-            10: five,
-        ]
-
-        let duplicates = SudokuDuplicateScanner.duplicates { square in
-            values[square.rawValue]
-        }
-
-        #expect(
-            duplicates == [
-                SudokuDuplicate(
-                    digit: five,
-                    house: try SudokuHouse.row(0),
-                    squares: [
-                        try SudokuSquare(rowIndex: 0, columnIndex: 0),
-                        try SudokuSquare(rowIndex: 0, columnIndex: 3),
-                    ]
-                ),
-                SudokuDuplicate(
-                    digit: five,
-                    house: try SudokuHouse.block(0),
-                    squares: [
-                        try SudokuSquare(rowIndex: 0, columnIndex: 0),
-                        try SudokuSquare(rowIndex: 1, columnIndex: 1),
-                    ]
-                ),
-            ]
-        )
-    }
 }

@@ -14,10 +14,6 @@ let package = Package(
         )
     ],
     targets: [
-        .target(name: "SudokuCore"),
-        .testTarget(
-            name: "SudokuCoreTests",
-            dependencies: ["SudokuCore"]
-        ),
+        .target(name: "SudokuCore")
     ]
 )

@@ -79,12 +79,6 @@ swift format format --recursive --in-place --parallel --configuration .swift-for
   SudokuLab/Packages/SudokuPuzzleEngine
 ```
 
-Run the Sudoku core package tests:
-
-```sh
-swift test --package-path SudokuLab/Packages/SudokuCore
-```
-
 Run the Sudoku domain package tests:
 
 ```sh

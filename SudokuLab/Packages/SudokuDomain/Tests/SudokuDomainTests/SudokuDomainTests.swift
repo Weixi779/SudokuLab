@@ -6,27 +6,68 @@ import Testing
 struct SudokuDomainTests {
     @Test func emptyBoardHasExpectedCells() throws {
         let board = Board()
+        let boardSize = BoardSize.standard
 
-        #expect(Board.size == 9)
-        #expect(Board.cellCount == 81)
-        #expect(Board.blockSide == 3)
+        #expect(board.boardSize == boardSize)
+        #expect(boardSize.size == 9)
+        #expect(boardSize.blockSide == 3)
         #expect(board[Position(row: 0, column: 0)] == .empty)
-        #expect(board.cell(at: Position(row: 8, column: 8)) == .empty)
+        #expect(try board.cell(at: Position(row: 8, column: 8)) == .empty)
+    }
+
+    @Test func boardUsesInjectedBoardSize() throws {
+        let boardSize = BoardSize(size: 4, blockSide: 2)
+        var cells = emptyCells(for: boardSize)
+        cells[index(for: Position(row: 3, column: 3), boardSize: boardSize)] = .entry(Digit(4))
+
+        let board = try Board(cells: cells, boardSize: boardSize)
+
+        #expect(board.boardSize == boardSize)
+        #expect(try board.cell(at: Position(row: 3, column: 3)) == .entry(Digit(4)))
+    }
+
+    @Test func rulesUseBoardSizeConstraints() throws {
+        let boardSize = BoardSize(size: 4, blockSide: 2)
+        var clues = emptyClues(for: boardSize)
+        clues[index(for: Position(row: 2, column: 2), boardSize: boardSize)] = 4
+        clues[index(for: Position(row: 3, column: 3), boardSize: boardSize)] = 4
+        let board = try Board(clues: clues, boardSize: boardSize)
+
+        #expect(
+            SudokuRules().validate(board) == [
+                .duplicateDigit(
+                    Digit(4),
+                    positions: [
+                        Position(row: 2, column: 2),
+                        Position(row: 3, column: 3),
+                    ]
+                )
+            ]
+        )
+    }
+
+    @Test func boardSizeRejectsInvalidShape() {
+        let boardSize = BoardSize(size: 6, blockSide: 2)
+
+        #expect(throws: SudokuDomainError.invalidBoardSize(size: 6, blockSide: 2)) {
+            try Board(boardSize: boardSize)
+        }
     }
 
     @Test func boardCanBeInitializedFromCells() throws {
         let digit = Digit(5)
-        var cells = Array(repeating: Cell.empty, count: Board.cellCount)
-        cells[0] = .clue(digit)
+        let position = Position(row: 0, column: 0)
+        var cells = emptyCells()
+        cells[index(for: position)] = .clue(digit)
 
         let board = try Board(cells: cells)
 
-        #expect(board[Position(row: 0, column: 0)] == .clue(digit))
+        #expect(board[position] == .clue(digit))
     }
 
     @Test func boardCanBeInitializedFromClues() throws {
-        var clues = Array(repeating: Int?.none, count: Board.cellCount)
-        clues[0] = 8
+        var clues = emptyClues()
+        clues[index(for: Position(row: 0, column: 0))] = 8
 
         let board = try Board(clues: clues)
 
@@ -40,6 +81,42 @@ struct SudokuDomainTests {
         }
         #expect(throws: SudokuDomainError.invalidCellCount(value: 0, expected: 81)) {
             try Board(clues: [])
+        }
+    }
+
+    @Test func boardRejectsDigitsOutsideBoardSize() throws {
+        let boardSize = BoardSize(size: 4, blockSide: 2)
+        var cells = emptyCells(for: boardSize)
+        cells[index(for: Position(row: 0, column: 0), boardSize: boardSize)] = .entry(Digit(5))
+
+        #expect(throws: SudokuDomainError.invalidDigit(value: 5, maximum: 4)) {
+            try Board(cells: cells, boardSize: boardSize)
+        }
+
+        var clues = emptyClues(for: boardSize)
+        clues[index(for: Position(row: 0, column: 0), boardSize: boardSize)] = 5
+
+        #expect(throws: SudokuDomainError.invalidDigit(value: 5, maximum: 4)) {
+            try Board(clues: clues, boardSize: boardSize)
+        }
+
+        var board = try Board(boardSize: boardSize)
+
+        #expect(throws: SudokuDomainError.invalidDigit(value: 5, maximum: 4)) {
+            try board.setEntry(Digit(5), at: Position(row: 0, column: 0))
+        }
+    }
+
+    @Test func boardRejectsPositionsOutsideBoardSize() throws {
+        let position = Position(row: 9, column: 0)
+        var board = Board()
+
+        #expect(throws: SudokuDomainError.invalidPosition(position)) {
+            try board.cell(at: position)
+        }
+
+        #expect(throws: SudokuDomainError.invalidPosition(position)) {
+            try board.setEntry(Digit(1), at: position)
         }
     }
 
@@ -153,13 +230,31 @@ struct SudokuDomainTests {
     }
 
     private func clues(_ entries: [(Int, Int, Int)]) -> [Int?] {
-        var clues = Array(repeating: Int?.none, count: Board.cellCount)
+        let boardSize = BoardSize.standard
+        var clues = emptyClues(for: boardSize)
 
         for (rowIndex, columnIndex, value) in entries {
-            clues[rowIndex * Board.size + columnIndex] = value
+            clues[index(for: Position(row: rowIndex, column: columnIndex), boardSize: boardSize)] =
+                value
         }
 
         return clues
+    }
+
+    private func emptyCells(for boardSize: BoardSize = .standard) -> [Cell] {
+        Array(repeating: .empty, count: cellCount(for: boardSize))
+    }
+
+    private func emptyClues(for boardSize: BoardSize = .standard) -> [Int?] {
+        Array(repeating: Int?.none, count: cellCount(for: boardSize))
+    }
+
+    private func cellCount(for boardSize: BoardSize = .standard) -> Int {
+        boardSize.size * boardSize.size
+    }
+
+    private func index(for position: Position, boardSize: BoardSize = .standard) -> Int {
+        position.row * boardSize.size + position.column
     }
 
     private var solvedBoard: [Int?] {

@@ -23,4 +23,18 @@ struct SudokuCoreTests {
         #expect(center.column == 4)
         #expect([bottomRight, topLeft, center].sorted() == [topLeft, center, bottomRight])
     }
+
+    @Test func boardSizeStoresStandardConfiguration() {
+        let boardSize = BoardSize.standard
+
+        #expect(boardSize.size == 9)
+        #expect(boardSize.blockSide == 3)
+    }
+
+    @Test func boardSizeStoresCustomConfiguration() {
+        let boardSize = BoardSize(size: 4, blockSide: 2)
+
+        #expect(boardSize.size == 4)
+        #expect(boardSize.blockSide == 2)
+    }
 }

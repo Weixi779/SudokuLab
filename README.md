@@ -36,7 +36,7 @@ interface that can evolve without carrying old architectural debt.
 SudokuLab/
   SudokuLab.xcodeproj       New active Xcode project
   Packages/
-    SudokuCore/             Shared Sudoku primitive values
+    SudokuCore/             Shared Sudoku primitive values and board size configuration
     SudokuDomain/           App-facing grid, cells, and player rule model
     SudokuPuzzleEngine/     Pure Swift Sudoku solving, validation, and generation
   SudokuLab/                App source

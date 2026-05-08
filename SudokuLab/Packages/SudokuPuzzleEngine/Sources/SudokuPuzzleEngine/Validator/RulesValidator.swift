@@ -1,7 +1,7 @@
-public struct RulesValidator: Validator {
-    public init() {}
+struct RulesValidator: Validator {
+    init() {}
 
-    public func validate(_ grid: PuzzleGrid) throws {
+    func validate(_ grid: PuzzleGrid) throws {
         try ValidationFailure.throwIfNeeded(ValidationIssues.duplicateIssues(in: grid))
     }
 }

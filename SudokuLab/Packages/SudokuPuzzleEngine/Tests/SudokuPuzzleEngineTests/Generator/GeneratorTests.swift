@@ -1,67 +1,119 @@
+import SudokuCore
+import SudokuDomain
 import SudokuPuzzleEngine
 import Testing
 
 @Suite
 struct GeneratorTests {
     @Test func locallyMinimalGenerationProducesUniquePuzzle() throws {
-        var generator = Generator(randomNumberGenerator: SeededRandomNumberGenerator(seed: 1))
+        var generator = RandomizedBoardGenerator(
+            randomNumberGenerator: SeededRandomNumberGenerator(seed: 1))
 
         let generated = try generator.generate()
 
-        try SolvedGridValidator().validate(generated.solution)
-        try RulesValidator().validate(generated.puzzle)
-        try UniqueSolutionValidator().validate(generated.puzzle)
-        #expect(Solver().solve(generated.puzzle) == generated.solution)
-        #expect(generated.clueCount == generated.puzzle.cells.filter { $0 != 0 }.count)
+        #expect(SudokuRules().validate(generated.solution).isEmpty)
+        #expect(
+            generated.solution.positions.allSatisfy { position in
+                generated.solution[position].digit != nil
+            })
+        #expect(SudokuRules().validate(generated.puzzle).isEmpty)
+        #expect(try MRVBitmaskBoardSolver().hasUniqueSolution(generated.puzzle))
+        #expect(
+            digits(in: try #require(try MRVBitmaskBoardSolver().solve(generated.puzzle)))
+                == digits(in: generated.solution)
+        )
+        #expect(
+            generated.clueCount
+                == generated.puzzle.positions.filter { position in
+                    generated.puzzle[position].isClue
+                }.count)
     }
 
     @Test func locallyMinimalPuzzleCannotRemoveAnyRemainingClue() throws {
-        var generator = Generator(randomNumberGenerator: SeededRandomNumberGenerator(seed: 2))
+        var generator = RandomizedBoardGenerator(
+            randomNumberGenerator: SeededRandomNumberGenerator(seed: 2))
         let generated = try generator.generate()
-        let solver = Solver()
+        let solver = MRVBitmaskBoardSolver()
 
-        for cellIndex in generated.puzzle.cells.indices where generated.puzzle[cellIndex] != 0 {
-            var cells = generated.puzzle.cells
-            cells[cellIndex] = 0
-            let candidate = try PuzzleGrid(cells: cells)
+        for (index, position) in generated.puzzle.positions.enumerated()
+        where generated.puzzle[position].isClue {
+            var cells = generated.puzzle.positions.map { generated.puzzle[$0] }
+            cells[index] = .empty
+            let candidate = try Board(cells: cells)
 
-            #expect(solver.solutionCount(for: candidate, limit: 2) == 2)
+            #expect(try solver.solutionCount(for: candidate, limit: 2) == 2)
         }
     }
 
     @Test func targetClueCountStopsAtTarget() throws {
-        var generator = Generator(randomNumberGenerator: SeededRandomNumberGenerator(seed: 3))
+        var generator = RandomizedBoardGenerator(
+            configuration: BoardGenerationConfiguration(goal: .targetClueCount(40)),
+            randomNumberGenerator: SeededRandomNumberGenerator(seed: 3))
 
-        let generated = try generator.generate(
-            options: GeneratorOptions(goal: .targetClueCount(40))
-        )
+        let generated = try generator.generate()
 
         #expect(generated.clueCount == 40)
-        try UniqueSolutionValidator().validate(generated.puzzle)
-        #expect(Solver().solve(generated.puzzle) == generated.solution)
+        #expect(try MRVBitmaskBoardSolver().hasUniqueSolution(generated.puzzle))
+        #expect(
+            digits(in: try #require(try MRVBitmaskBoardSolver().solve(generated.puzzle)))
+                == digits(in: generated.solution)
+        )
     }
 
     @Test func generationIsDeterministicForSeed() throws {
-        var firstGenerator = Generator(randomNumberGenerator: SeededRandomNumberGenerator(seed: 4))
-        var secondGenerator = Generator(randomNumberGenerator: SeededRandomNumberGenerator(seed: 4))
+        var firstGenerator = RandomizedBoardGenerator(
+            configuration: BoardGenerationConfiguration(goal: .targetClueCount(40)),
+            randomNumberGenerator: SeededRandomNumberGenerator(seed: 4))
+        var secondGenerator = RandomizedBoardGenerator(
+            configuration: BoardGenerationConfiguration(goal: .targetClueCount(40)),
+            randomNumberGenerator: SeededRandomNumberGenerator(seed: 4))
 
-        let first = try firstGenerator.generate(
-            options: GeneratorOptions(goal: .targetClueCount(40)))
-        let second = try secondGenerator.generate(
-            options: GeneratorOptions(goal: .targetClueCount(40)))
+        let first = try firstGenerator.generate()
+        let second = try secondGenerator.generate()
 
         #expect(first == second)
     }
 
+    @Test func generatorConfigurationCanBeCopiedAndReplaced() {
+        var generator = RandomizedBoardGenerator(
+            randomNumberGenerator: SeededRandomNumberGenerator(seed: 7))
+        let configuration = BoardGenerationConfiguration(goal: .targetClueCount(40))
+
+        generator.configuration = configuration
+
+        #expect(generator.configuration == configuration)
+    }
+
     @Test func generatorRejectsInvalidTargetClueCount() {
-        #expect(throws: GeneratorError.invalidTargetClueCount(-1)) {
-            var generator = Generator(randomNumberGenerator: SeededRandomNumberGenerator(seed: 5))
-            _ = try generator.generate(options: GeneratorOptions(goal: .targetClueCount(-1)))
+        #expect(throws: BoardGenerationError.invalidTargetClueCount(-1)) {
+            var generator = RandomizedBoardGenerator(
+                configuration: BoardGenerationConfiguration(goal: .targetClueCount(-1)),
+                randomNumberGenerator: SeededRandomNumberGenerator(seed: 5))
+            _ = try generator.generate()
         }
 
-        #expect(throws: GeneratorError.invalidTargetClueCount(82)) {
-            var generator = Generator(randomNumberGenerator: SeededRandomNumberGenerator(seed: 5))
-            _ = try generator.generate(options: GeneratorOptions(goal: .targetClueCount(82)))
+        #expect(throws: BoardGenerationError.invalidTargetClueCount(82)) {
+            var generator = RandomizedBoardGenerator(
+                configuration: BoardGenerationConfiguration(goal: .targetClueCount(82)),
+                randomNumberGenerator: SeededRandomNumberGenerator(seed: 5))
+            _ = try generator.generate()
+        }
+    }
+
+    @Test func generatorRejectsUnsupportedBoardSize() {
+        let boardSize = BoardSize(size: 4, blockSide: 2)
+
+        #expect(throws: BoardGenerationError.unsupportedBoardSize(boardSize)) {
+            var generator = RandomizedBoardGenerator(
+                configuration: BoardGenerationConfiguration(boardSize: boardSize),
+                randomNumberGenerator: SeededRandomNumberGenerator(seed: 6))
+            _ = try generator.generate()
+        }
+    }
+
+    private func digits(in board: Board) -> [Int] {
+        board.positions.map { position in
+            board[position].digit?.value ?? 0
         }
     }
 

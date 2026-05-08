@@ -1,22 +1,33 @@
 import SudokuCore
+import SudokuDomain
 
-public struct Generator<Random: RandomNumberGenerator & Sendable>: Sendable {
+public struct RandomizedBoardGenerator<Random: RandomNumberGenerator & Sendable>: BoardGenerator {
+    public var configuration: BoardGenerationConfiguration
     private var randomNumberGenerator: Random
 
-    public init(randomNumberGenerator: Random) {
+    public init(
+        configuration: BoardGenerationConfiguration = BoardGenerationConfiguration(),
+        randomNumberGenerator: Random
+    ) {
+        self.configuration = configuration
         self.randomNumberGenerator = randomNumberGenerator
     }
 
-    public mutating func generate(options: GeneratorOptions = GeneratorOptions()) throws
-        -> GeneratedPuzzle
-    {
-        let targetClueCount = try validatedTargetClueCount(for: options.goal)
+    public mutating func generate() throws -> GeneratedBoard {
+        guard configuration.boardSize == .standard else {
+            throw BoardGenerationError.unsupportedBoardSize(configuration.boardSize)
+        }
+
+        let targetClueCount = try validatedTargetClueCount(for: configuration.goal)
         guard let solution = generateSolution() else {
-            throw GeneratorError.unableToGenerateSolution
+            throw BoardGenerationError.unableToGenerateSolution
         }
 
         let puzzle = try removeClues(from: solution, targetClueCount: targetClueCount)
-        return GeneratedPuzzle(puzzle: puzzle, solution: solution)
+        return GeneratedBoard(
+            puzzle: try Self.clueBoard(from: puzzle),
+            solution: try Self.entryBoard(from: solution)
+        )
     }
 
     private mutating func generateSolution() -> PuzzleGrid? {
@@ -56,7 +67,7 @@ public struct Generator<Random: RandomNumberGenerator & Sendable>: Sendable {
         let puzzle = PuzzleGrid(uncheckedCells: puzzleCells)
 
         if let targetClueCount, clueCount != targetClueCount {
-            throw GeneratorError.unableToReachTargetClueCount(
+            throw BoardGenerationError.unableToReachTargetClueCount(
                 target: targetClueCount,
                 actual: clueCount
             )
@@ -65,22 +76,41 @@ public struct Generator<Random: RandomNumberGenerator & Sendable>: Sendable {
         return puzzle
     }
 
-    private func validatedTargetClueCount(for goal: GeneratorGoal) throws -> Int? {
+    private func validatedTargetClueCount(for goal: BoardGenerationGoal) throws -> Int? {
         switch goal {
         case .locallyMinimal:
             return nil
         case .targetClueCount(let targetClueCount):
             guard (0...StandardGrid.cellCount).contains(targetClueCount) else {
-                throw GeneratorError.invalidTargetClueCount(targetClueCount)
+                throw BoardGenerationError.invalidTargetClueCount(targetClueCount)
             }
 
             return targetClueCount
         }
     }
+
+    private static func clueBoard(from grid: PuzzleGrid) throws -> Board {
+        try Board(
+            clues: grid.cells.map { digit in
+                digit == 0 ? nil : digit
+            }
+        )
+    }
+
+    private static func entryBoard(from grid: PuzzleGrid) throws -> Board {
+        try Board(
+            cells: grid.cells.map { digit in
+                digit == 0 ? .empty : .entry(Digit(digit))
+            }
+        )
+    }
 }
 
-extension Generator where Random == SystemRandomNumberGenerator {
-    public init() {
-        self.init(randomNumberGenerator: SystemRandomNumberGenerator())
+extension RandomizedBoardGenerator where Random == SystemRandomNumberGenerator {
+    public init(configuration: BoardGenerationConfiguration = BoardGenerationConfiguration()) {
+        self.init(
+            configuration: configuration,
+            randomNumberGenerator: SystemRandomNumberGenerator()
+        )
     }
 }

@@ -1,13 +1,13 @@
-public struct ValidationFailure: Error, Equatable, Sendable {
-    public let issues: [ValidationIssue]
+struct ValidationFailure: Error, Equatable, Sendable {
+    let issues: [ValidationIssue]
 
-    public init(issues: [ValidationIssue]) {
+    init(issues: [ValidationIssue]) {
         self.issues = issues
     }
 }
 
 extension ValidationFailure {
-    public static func throwIfNeeded(_ issues: [ValidationIssue]) throws {
+    static func throwIfNeeded(_ issues: [ValidationIssue]) throws {
         guard !issues.isEmpty else { return }
 
         throw ValidationFailure(issues: issues)

@@ -25,6 +25,13 @@ that size for cell counts, position indexing, digit bounds, and constraint group
 `SudokuPuzzleEngine` keeps its internal standard 9x9 topology until engine
 configuration becomes necessary.
 
+2026-05-06 amendment: `SudokuDomain` now owns board solver and generator
+contracts. `SudokuPuzzleEngine` depends on `SudokuDomain` and exposes concrete
+algorithm implementations named by strategy, such as `MRVBitmaskBoardSolver`
+and `RandomizedBoardGenerator`. Board generation uses copyable configuration on
+the generator instance plus a mutating `generate()` effect. `PuzzleGrid` and the
+validator family are engine internals, not app-facing API.
+
 ## Status
 
 Accepted
@@ -47,12 +54,12 @@ such as `Digit` and `Position`, plus minimal Sudoku structure such as
 results, business errors, or engine-facing validation issues.
 
 Create `SudokuDomain` for app-facing Sudoku state. It depends on `SudokuCore`
-and owns `Cell`, `Board`, `SudokuRules`, `SudokuRuleViolation`, and
-`SudokuDomainError`.
+and owns `Cell`, `Board`, `SudokuRules`, `SudokuRuleViolation`,
+`SudokuDomainError`, `BoardSolver`, and `BoardGenerator`.
 
-Make `SudokuPuzzleEngine` depend on `SudokuCore` for shared primitive values.
-It must not depend on `SudokuDomain`. Its validation API uses `Digit` and
-`Position` instead of the old `PuzzleUnit` and integer cell-index result shape.
+Make `SudokuPuzzleEngine` depend on `SudokuDomain` and `SudokuCore`. Its public
+surface implements Domain's board contracts, while numeric `PuzzleGrid` and
+throwing validator types stay internal to the engine package.
 
 The app links `SudokuDomain` and `SudokuPuzzleEngine`; `SudokuCore` enters
 through package dependencies unless app code directly imports it.
@@ -60,11 +67,11 @@ through package dependencies unless app code directly imports it.
 ## Consequences
 
 - `SudokuCore` no longer references app-facing board state.
-- `SudokuDomain` and `SudokuPuzzleEngine` share foundation types without
-  depending on each other.
+- `SudokuPuzzleEngine` now depends on `SudokuDomain`, making Domain the shared
+  board vocabulary for solver and generator use.
 - Standard 9x9 constants and row, column, and block group generation are
-  duplicated internally until a real topology abstraction is needed.
-- The puzzle engine validation issue shape is intentionally breaking while the
-  API is still early.
+  still duplicated internally until a real topology abstraction is needed.
+- The puzzle engine public API intentionally breaks from `Solver`/`Generator`
+  and `PuzzleGrid` to Board-first contracts while the API is still early.
 - Future difficulty scoring can share a topology abstraction later without
   coupling `SudokuCore` to app player semantics.

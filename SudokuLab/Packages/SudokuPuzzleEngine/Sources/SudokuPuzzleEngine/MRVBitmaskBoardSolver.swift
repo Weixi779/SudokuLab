@@ -1,24 +1,66 @@
 import SudokuCore
+import SudokuDomain
 
-public struct Solver: Sendable {
+public struct MRVBitmaskBoardSolver: BoardSolver {
     public init() {}
 
-    public func solve(_ grid: PuzzleGrid) -> PuzzleGrid? {
+    public func solve(_ board: Board) throws -> Board? {
+        try Self.validateSupportedBoardSize(board.boardSize)
+
+        let grid = Self.puzzleGrid(from: board)
+        guard let solution = solve(grid) else { return nil }
+
+        return try Self.board(from: solution, preserving: board)
+    }
+
+    public func solutionCount(for board: Board, limit: Int = 2) throws -> Int {
+        try Self.validateSupportedBoardSize(board.boardSize)
+
+        return solutionCount(for: Self.puzzleGrid(from: board), limit: limit)
+    }
+
+    func solve(_ grid: PuzzleGrid) -> PuzzleGrid? {
         guard var state = SolverState(grid) else { return nil }
         guard state.solveFirst() else { return nil }
 
         return PuzzleGrid(uncheckedCells: state.cells)
     }
 
-    public func solutionCount(for grid: PuzzleGrid, limit: Int = 2) -> Int {
+    func solutionCount(for grid: PuzzleGrid, limit: Int = 2) -> Int {
         guard limit > 0 else { return 0 }
         guard var state = SolverState(grid) else { return 0 }
 
         return state.solutionCount(limit: limit)
     }
 
-    public func hasUniqueSolution(_ grid: PuzzleGrid) -> Bool {
+    func hasUniqueSolution(_ grid: PuzzleGrid) -> Bool {
         solutionCount(for: grid, limit: 2) == 1
+    }
+
+    private static func validateSupportedBoardSize(_ boardSize: BoardSize) throws {
+        guard boardSize == .standard else {
+            throw BoardSolvingError.unsupportedBoardSize(boardSize)
+        }
+    }
+
+    private static func puzzleGrid(from board: Board) -> PuzzleGrid {
+        PuzzleGrid(
+            uncheckedCells: board.positions.map { position in
+                board[position].digit?.value ?? 0
+            }
+        )
+    }
+
+    private static func board(from solution: PuzzleGrid, preserving board: Board) throws -> Board {
+        let cells = zip(board.positions, solution.cells).map { position, digit -> Cell in
+            let originalCell = board[position]
+            guard originalCell.digit == nil else { return originalCell }
+            guard digit != 0 else { return .empty }
+
+            return .entry(Digit(digit))
+        }
+
+        return try Board(cells: cells, boardSize: board.boardSize)
     }
 }
 

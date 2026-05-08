@@ -31,9 +31,9 @@ topology is kept in Domain and Engine internals until a real topology
 abstraction is needed.
 
 Solving, solution counting, generation, and difficulty scoring belong in a
-separate pure puzzle engine package. After ADR 0006, that package depends on
-`SudokuCore` for shared primitive values but remains independent from
-`SudokuDomain`.
+separate pure puzzle engine package. After the 2026-05-06 ADR 0006 amendment,
+that package depends on `SudokuDomain` for board solver/generator contracts and
+on `SudokuCore` for shared primitive values.
 
 Public API terms use:
 
@@ -51,8 +51,8 @@ usage.
 - App targets can depend on `SudokuDomain` and `SudokuPuzzleEngine`, while
   `SudokuCore` remains free of SwiftUI, SwiftData, FactoryKit, and
   FactoryTesting.
-- Core tests run in the package test target and use ordinary `import
-  SudokuCore` to verify the public API boundary.
+- `SudokuCore` is intentionally small enough to build without a dedicated test
+  target; Domain and Engine tests cover its use through public contracts.
 - App unit tests remain focused on app shell and store behavior.
 - Future app stores and persistence records should consume `SudokuDomain`
   models rather than reimplementing player-grid rules.

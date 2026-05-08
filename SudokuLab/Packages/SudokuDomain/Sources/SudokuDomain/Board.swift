@@ -60,6 +60,18 @@ public struct Board: Equatable, Sendable {
         cells[try index(for: position)]
     }
 
+    public var cellCount: Int {
+        Self.cellCount(for: boardSize)
+    }
+
+    public var positions: [Position] {
+        (0..<boardSize.size).flatMap { row in
+            (0..<boardSize.size).map { column in
+                Position(row: row, column: column)
+            }
+        }
+    }
+
     var constraintGroups: [[Position]] {
         (0..<boardSize.size).map(row)
             + (0..<boardSize.size).map(column)
@@ -81,20 +93,16 @@ public struct Board: Equatable, Sendable {
         cells[index] = digit.map(Cell.entry) ?? .empty
     }
 
-    private var cellCount: Int {
-        Self.cellCount(for: boardSize)
-    }
-
     private var maximumDigit: Int {
         boardSize.size
     }
 
-    private func contains(_ position: Position) -> Bool {
+    public func contains(_ position: Position) -> Bool {
         (0..<boardSize.size).contains(position.row)
             && (0..<boardSize.size).contains(position.column)
     }
 
-    private func contains(_ digit: Digit) -> Bool {
+    public func contains(_ digit: Digit) -> Bool {
         (1...maximumDigit).contains(digit.value)
     }
 

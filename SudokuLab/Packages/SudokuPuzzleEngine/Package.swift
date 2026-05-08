@@ -14,13 +14,15 @@ let package = Package(
         )
     ],
     dependencies: [
-        .package(path: "../SudokuCore")
+        .package(path: "../SudokuCore"),
+        .package(path: "../SudokuDomain"),
     ],
     targets: [
         .target(
             name: "SudokuPuzzleEngine",
             dependencies: [
-                .product(name: "SudokuCore", package: "SudokuCore")
+                .product(name: "SudokuCore", package: "SudokuCore"),
+                .product(name: "SudokuDomain", package: "SudokuDomain"),
             ]
         ),
         .testTarget(
@@ -28,6 +30,7 @@ let package = Package(
             dependencies: [
                 "SudokuPuzzleEngine",
                 .product(name: "SudokuCore", package: "SudokuCore"),
+                .product(name: "SudokuDomain", package: "SudokuDomain"),
             ]
         ),
     ]

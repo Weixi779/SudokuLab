@@ -1,11 +1,11 @@
-public struct UniqueSolutionValidator: Validator {
-    private let solver: Solver
+struct UniqueSolutionValidator: Validator {
+    private let solver: MRVBitmaskBoardSolver
 
-    public init(solver: Solver = Solver()) {
+    init(solver: MRVBitmaskBoardSolver = MRVBitmaskBoardSolver()) {
         self.solver = solver
     }
 
-    public func validate(_ grid: PuzzleGrid) throws {
+    func validate(_ grid: PuzzleGrid) throws {
         let solutionCount = solver.solutionCount(for: grid, limit: 2)
 
         switch solutionCount {

@@ -10,6 +10,11 @@ Accepted, amended by [0006](0006-refine-sudoku-package-boundaries.md)
 shared primitive values and validation issue coordinates. The old `PuzzleUnit`
 API is removed.
 
+2026-05-06 amendment: superseded by [0006](0006-refine-sudoku-package-boundaries.md).
+`SudokuPuzzleEngine` now depends on `SudokuDomain` for board solver/generator
+contracts. `PuzzleGrid` and the validator family are implementation details
+instead of the package's app-facing API.
+
 ## Context
 
 Sudoku solving, numeric validation, solution counting, uniqueness checks,
@@ -18,44 +23,33 @@ They should stay independent from SwiftUI, SwiftData, FactoryKit, and the
 app-facing semantic model now isolated in `SudokuDomain`.
 
 `SudokuCore` expresses shared primitive values such as digits and positions.
-The puzzle engine keeps a numeric `PuzzleGrid` contract and owns its standard
-9x9 topology internally.
+After the 2026-05-06 amendment, the puzzle engine uses `SudokuDomain.Board`
+contracts publicly while keeping a numeric `PuzzleGrid` representation and
+standard 9x9 topology internally.
 
 ## Decision
 
 Create a local Swift package named `SudokuPuzzleEngine` under
 `SudokuLab/Packages/SudokuPuzzleEngine`.
 
-The package depends on `SudokuCore` and remains independent from
-`SudokuDomain`. App features or adapters are responsible for converting between
-domain grids and engine grids when both are needed.
+The package now depends on `SudokuDomain` and implements its board solver and
+generator contracts. App-facing code should use `Board`, `BoardSolver`, and
+`BoardGenerator`; engine numeric grid types are reserved for internal
+implementation and tests.
 
 The package currently supports only standard 9x9 Sudoku. Public API terms use:
 
-- `PuzzleGrid` for the fixed 81-cell numeric puzzle grid.
-- `PuzzleGridError` for invalid cell count or digit input.
-- `Solver` for solving, solution counting, and uniqueness checks.
-- `Validator` for composable validation capabilities.
-- `RulesValidator` for row, column, and block duplicate checks.
-- `SolvedGridValidator` for filled, rule-valid solution grids.
-- `UniqueSolutionValidator` for puzzle uniqueness checks.
-- `CompositeValidator` for aggregating failures from several validators.
-- `ShortCircuitCompositeValidator` for stopping at the first failed validator.
-- `ValidationIssue` and `ValidationFailure` for thrown validation failures.
-- `Generator` for seeded or system-random puzzle generation.
-- `GeneratorGoal` and `GeneratorOptions` for locally minimal or target clue
-  count generation.
-- `GeneratedPuzzle` for returning a puzzle with its solution.
-- `GeneratorError` for invalid target clue counts and generation failures.
+- `MRVBitmaskBoardSolver` for solving, solution counting, and uniqueness checks.
+- `RandomizedBoardGenerator` for seeded or system-random board generation. It
+  stores a copyable `BoardGenerationConfiguration` and generates through a
+  mutating `generate()` effect.
 
 `0` represents an empty cell. Digits `1...9` represent filled cells. Existing
-duplicate digits are accepted by `PuzzleGrid` as structurally valid input, then
-treated as an unsolvable puzzle by `Solver`.
+duplicate digits are accepted by the internal numeric grid as structurally valid
+input, then treated as an unsolvable board by the solver.
 
-Validators use throwing APIs. `ValidationIssue` conforms to `Error`, and
-validators throw `ValidationFailure` so one validation pass can report multiple
-issues. Custom validators should throw `ValidationFailure`; the public
-`ValidationFailure.throwIfNeeded` helper exists for that purpose.
+Validators still use throwing APIs internally for engine tests and generator
+checks, but they are no longer the public app-facing validation contract.
 
 The initial solver uses deterministic bitmask backtracking with a minimum
 remaining values cell choice. DLX, exact cover, or other algorithms can replace
@@ -73,9 +67,9 @@ future work.
 
 ## Consequences
 
-- Package tests use ordinary `import SudokuPuzzleEngine` to verify the public
-  API boundary.
-- The app can link `SudokuPuzzleEngine` without making `SudokuCore` depend on
-  puzzle-computation internals or `SudokuDomain`.
+- Package tests use ordinary `import SudokuPuzzleEngine` for public solver and
+  generator behavior, and `@testable import` for internal grid/validator checks.
+- The app can link `SudokuPuzzleEngine` as an implementation of
+  `SudokuDomain` board contracts.
 - Benchmarks can be added later to compare internal solver/generator strategies
   without changing public callers.

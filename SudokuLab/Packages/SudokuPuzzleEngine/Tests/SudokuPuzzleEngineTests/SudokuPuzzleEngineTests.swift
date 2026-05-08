@@ -1,99 +1,117 @@
+import SudokuCore
+import SudokuDomain
 import SudokuPuzzleEngine
 import Testing
 
 @Suite
 struct SudokuPuzzleEngineTests {
-    @Test func emptyGridStoresZeros() {
-        let grid = PuzzleGrid()
+    @Test func solvedBoardSolvesToItself() throws {
+        let board = try board(clues: solvedGrid)
+        let solution = try #require(try MRVBitmaskBoardSolver().solve(board))
 
-        #expect(PuzzleGrid.size == 9)
-        #expect(PuzzleGrid.cellCount == 81)
-        #expect(PuzzleGrid.blockSide == 3)
-        #expect(grid.cells.count == PuzzleGrid.cellCount)
-        #expect(grid.cells.allSatisfy { $0 == 0 })
-        #expect(grid.value(at: 0) == 0)
-        #expect(grid[row: 8, column: 8] == 0)
+        #expect(solution == board)
     }
 
-    @Test func gridAcceptsValidDigitsAndExposesSnapshot() throws {
-        var cells = Array(repeating: 0, count: PuzzleGrid.cellCount)
-        cells[0] = 8
-        cells[80] = 9
+    @Test func standardPuzzleSolvesToExpectedBoard() throws {
+        let puzzle = try board(clues: standardPuzzle)
+        let solution = try #require(try MRVBitmaskBoardSolver().solve(puzzle))
 
-        let grid = try PuzzleGrid(cells: cells)
-
-        #expect(grid.value(at: 0) == 8)
-        #expect(grid.value(row: 8, column: 8) == 9)
-        #expect(grid[80] == 9)
-        #expect(grid.cells == cells)
+        #expect(solution == (try expectedSolvedBoard(for: standardPuzzle)))
     }
 
-    @Test func gridRejectsInvalidCellCount() {
-        #expect(throws: PuzzleGridError.invalidCellCount(value: 0, expected: 81)) {
-            _ = try PuzzleGrid(cells: [])
+    @Test func solverResultPreservesOriginalCellKindsAndMarksSolvedCellsAsEntries() throws {
+        var cells = emptyCells()
+        cells[index(row: 0, column: 0)] = .clue(Digit(5))
+        cells[index(row: 0, column: 1)] = .entry(Digit(3))
+        for index in standardPuzzle.indices
+        where standardPuzzle[index] != 0 && cells[index] == .empty {
+            cells[index] = .clue(Digit(standardPuzzle[index]))
         }
+        let puzzle = try Board(cells: cells)
+        let solution = try #require(try MRVBitmaskBoardSolver().solve(puzzle))
+
+        #expect(solution[Position(row: 0, column: 0)] == .clue(Digit(5)))
+        #expect(solution[Position(row: 0, column: 1)] == .entry(Digit(3)))
+        #expect(solution[Position(row: 0, column: 2)] == .entry(Digit(4)))
     }
 
-    @Test func gridRejectsInvalidDigit() {
-        #expect(throws: PuzzleGridError.invalidDigit(-1)) {
-            var cells = Array(repeating: 0, count: PuzzleGrid.cellCount)
-            cells[0] = -1
-            _ = try PuzzleGrid(cells: cells)
-        }
+    @Test func contradictoryBoardHasNoSolution() throws {
+        let board = try board(clues: cells([(0, 0, 5), (0, 1, 5)]))
+        let solver = MRVBitmaskBoardSolver()
 
-        #expect(throws: PuzzleGridError.invalidDigit(10)) {
-            var cells = Array(repeating: 0, count: PuzzleGrid.cellCount)
-            cells[0] = 10
-            _ = try PuzzleGrid(cells: cells)
-        }
-    }
-
-    @Test func solvedGridSolvesToItself() throws {
-        let grid = try PuzzleGrid(cells: solvedGrid)
-        let solution = try #require(Solver().solve(grid))
-
-        #expect(solution == grid)
-    }
-
-    @Test func standardPuzzleSolvesToExpectedGrid() throws {
-        let puzzle = try PuzzleGrid(cells: standardPuzzle)
-        let solution = try #require(Solver().solve(puzzle))
-
-        #expect(solution == (try PuzzleGrid(cells: solvedGrid)))
-    }
-
-    @Test func contradictoryGridHasNoSolution() throws {
-        var cells = Array(repeating: 0, count: PuzzleGrid.cellCount)
-        cells[0] = 5
-        cells[1] = 5
-        let grid = try PuzzleGrid(cells: cells)
-        let solver = Solver()
-
-        #expect(solver.solve(grid) == nil)
-        #expect(solver.solutionCount(for: grid) == 0)
-        #expect(!solver.hasUniqueSolution(grid))
+        #expect(try solver.solve(board) == nil)
+        #expect(try solver.solutionCount(for: board, limit: 2) == 0)
+        #expect(!(try solver.hasUniqueSolution(board)))
     }
 
     @Test func standardPuzzleHasUniqueSolution() throws {
-        let puzzle = try PuzzleGrid(cells: standardPuzzle)
+        let puzzle = try board(clues: standardPuzzle)
 
-        #expect(Solver().hasUniqueSolution(puzzle))
+        #expect(try MRVBitmaskBoardSolver().hasUniqueSolution(puzzle))
     }
 
-    @Test func emptyGridHasMultipleSolutions() {
-        let solver = Solver()
+    @Test func emptyBoardHasMultipleSolutions() throws {
+        let solver = MRVBitmaskBoardSolver()
+        let board = Board()
 
-        #expect(solver.solutionCount(for: PuzzleGrid(), limit: 2) == 2)
-        #expect(!solver.hasUniqueSolution(PuzzleGrid()))
+        #expect(try solver.solutionCount(for: board, limit: 2) == 2)
+        #expect(!(try solver.hasUniqueSolution(board)))
     }
 
-    @Test func solutionCountRespectsLimit() {
-        let solver = Solver()
-        let grid = PuzzleGrid()
+    @Test func solutionCountRespectsLimit() throws {
+        let solver = MRVBitmaskBoardSolver()
+        let board = Board()
 
-        #expect(solver.solutionCount(for: grid, limit: 0) == 0)
-        #expect(solver.solutionCount(for: grid, limit: 1) == 1)
-        #expect(solver.solutionCount(for: grid, limit: 2) == 2)
+        #expect(try solver.solutionCount(for: board, limit: 0) == 0)
+        #expect(try solver.solutionCount(for: board, limit: 1) == 1)
+        #expect(try solver.solutionCount(for: board, limit: 2) == 2)
+    }
+
+    @Test func solverRejectsUnsupportedBoardSize() throws {
+        let boardSize = BoardSize(size: 4, blockSide: 2)
+        let board = try Board(boardSize: boardSize)
+        let solver = MRVBitmaskBoardSolver()
+
+        #expect(throws: BoardSolvingError.unsupportedBoardSize(boardSize)) {
+            _ = try solver.solve(board)
+        }
+        #expect(throws: BoardSolvingError.unsupportedBoardSize(boardSize)) {
+            _ = try solver.solutionCount(for: board, limit: 2)
+        }
+    }
+
+    private func board(clues: [Int]) throws -> Board {
+        try Board(clues: clues.map { $0 == 0 ? nil : $0 })
+    }
+
+    private func expectedSolvedBoard(for puzzle: [Int]) throws -> Board {
+        let cells = zip(puzzle, solvedGrid).map { clue, solvedDigit -> Cell in
+            clue == 0 ? .entry(Digit(solvedDigit)) : .clue(Digit(clue))
+        }
+
+        return try Board(cells: cells)
+    }
+
+    private func cells(_ entries: [(Int, Int, Int)]) -> [Int] {
+        var cells = Array(repeating: 0, count: cellCount())
+
+        for (row, column, digit) in entries {
+            cells[index(row: row, column: column)] = digit
+        }
+
+        return cells
+    }
+
+    private func emptyCells() -> [Cell] {
+        Array(repeating: .empty, count: cellCount())
+    }
+
+    private func index(row: Int, column: Int) -> Int {
+        row * BoardSize.standard.size + column
+    }
+
+    private func cellCount() -> Int {
+        BoardSize.standard.size * BoardSize.standard.size
     }
 
     private var standardPuzzle: [Int] {

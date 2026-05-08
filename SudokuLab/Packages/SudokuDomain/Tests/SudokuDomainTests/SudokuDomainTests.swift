@@ -9,6 +9,7 @@ struct SudokuDomainTests {
         let boardSize = BoardSize.standard
 
         #expect(board.boardSize == boardSize)
+        #expect(board.cellCount == 81)
         #expect(boardSize.size == 9)
         #expect(boardSize.blockSide == 3)
         #expect(board[Position(row: 0, column: 0)] == .empty)
@@ -23,7 +24,63 @@ struct SudokuDomainTests {
         let board = try Board(cells: cells, boardSize: boardSize)
 
         #expect(board.boardSize == boardSize)
+        #expect(board.cellCount == 16)
         #expect(try board.cell(at: Position(row: 3, column: 3)) == .entry(Digit(4)))
+    }
+
+    @Test func boardPositionsUseRowMajorOrder() throws {
+        let board = try Board(boardSize: BoardSize(size: 4, blockSide: 2))
+
+        #expect(
+            board.positions.prefix(5) == [
+                Position(row: 0, column: 0),
+                Position(row: 0, column: 1),
+                Position(row: 0, column: 2),
+                Position(row: 0, column: 3),
+                Position(row: 1, column: 0),
+            ])
+        #expect(board.positions.last == Position(row: 3, column: 3))
+    }
+
+    @Test func boardContainsPositionsAndDigitsInsideBoardSize() throws {
+        let board = try Board(boardSize: BoardSize(size: 4, blockSide: 2))
+
+        #expect(board.contains(Position(row: 0, column: 0)))
+        #expect(board.contains(Position(row: 3, column: 3)))
+        #expect(!board.contains(Position(row: 4, column: 0)))
+        #expect(!board.contains(Position(row: 0, column: 4)))
+
+        #expect(board.contains(Digit(1)))
+        #expect(board.contains(Digit(4)))
+        #expect(!board.contains(Digit(0)))
+        #expect(!board.contains(Digit(5)))
+    }
+
+    @Test func boardSolverDefaultUniqueSolutionCheckUsesSolutionCount() throws {
+        let board = Board()
+
+        #expect(try StaticBoardSolver(solutionCount: 1).hasUniqueSolution(board))
+        #expect(!(try StaticBoardSolver(solutionCount: 0).hasUniqueSolution(board)))
+        #expect(!(try StaticBoardSolver(solutionCount: 2).hasUniqueSolution(board)))
+    }
+
+    @Test func boardGenerationCountsCluesInPuzzleOnly() throws {
+        var cells = emptyCells()
+        cells[index(for: Position(row: 0, column: 0))] = .clue(Digit(1))
+        cells[index(for: Position(row: 0, column: 1))] = .entry(Digit(2))
+        cells[index(for: Position(row: 0, column: 2))] = .clue(Digit(3))
+        let puzzle = try Board(cells: cells)
+        let solution = try Board(clues: solvedBoard)
+        let generation = GeneratedBoard(puzzle: puzzle, solution: solution)
+
+        #expect(generation.clueCount == 2)
+    }
+
+    @Test func boardGenerationConfigurationDefaultToStandardLocallyMinimal() {
+        let configuration = BoardGenerationConfiguration()
+
+        #expect(configuration.boardSize == .standard)
+        #expect(configuration.goal == .locallyMinimal)
     }
 
     @Test func rulesUseBoardSizeConstraints() throws {
@@ -255,6 +312,18 @@ struct SudokuDomainTests {
 
     private func index(for position: Position, boardSize: BoardSize = .standard) -> Int {
         position.row * boardSize.size + position.column
+    }
+
+    private struct StaticBoardSolver: BoardSolver {
+        let solutionCount: Int
+
+        func solve(_ board: Board) throws -> Board? {
+            nil
+        }
+
+        func solutionCount(for board: Board, limit: Int) throws -> Int {
+            solutionCount
+        }
     }
 
     private var solvedBoard: [Int?] {

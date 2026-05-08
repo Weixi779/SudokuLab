@@ -1,7 +1,7 @@
-public struct SolvedGridValidator: Validator {
-    public init() {}
+struct SolvedGridValidator: Validator {
+    init() {}
 
-    public func validate(_ grid: PuzzleGrid) throws {
+    func validate(_ grid: PuzzleGrid) throws {
         var issues = ValidationIssues.duplicateIssues(in: grid)
         let emptyPositions = ValidationIssues.emptyPositions(in: grid)
 

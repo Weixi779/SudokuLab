@@ -15,9 +15,9 @@ Features
 
 Core packages
   SudokuCore shared Sudoku primitive values and board size configuration
-  SudokuDomain app-facing domain model, clues, entries, and player rule validation
-  SudokuPuzzleEngine pure solving, validation, solution counting, generation,
-  and rating
+  SudokuDomain app-facing board model, clues, entries, rules, and
+  solver/generator contracts
+  SudokuPuzzleEngine pure board solving and generation implementations
   No SwiftUI, no SwiftData, no FactoryKit
 
 Infrastructure
@@ -29,10 +29,13 @@ Shared
 ```
 
 `SudokuCore` owns shared primitive values and minimal board size configuration.
-`SudokuDomain` owns the app-facing player grid model. `SudokuPuzzleEngine` owns
-pure puzzle computation. `SudokuDomain` and `SudokuPuzzleEngine` may depend on
-`SudokuCore`, but they must not depend on each other. The app composes domain
-and engine behavior through feature stores and adapters.
+`SudokuDomain` owns the app-facing board model and the public board solver and
+generator contracts. `SudokuPuzzleEngine` depends on `SudokuDomain` and provides
+algorithm implementations such as `MRVBitmaskBoardSolver` and
+`RandomizedBoardGenerator`. Board generators hold a copyable
+`BoardGenerationConfiguration` and perform generation through a mutating
+`generate()` effect. Engine-only numeric grid and validator types are
+implementation details rather than app-facing contracts.
 
 ## State Management
 
@@ -52,8 +55,8 @@ Stores should expose intent methods such as `selectCell`, `fill`, `toggleNote`,
 FactoryKit is the planned DI layer. The app should depend on protocols for
 infrastructure:
 
-- `PuzzleGenerating`
-- `PuzzleSolving`
+- `BoardGenerator`
+- `BoardSolver`
 - `GameProgressRepository`
 - `GameRecordRepository`
 - `SettingsRepository`

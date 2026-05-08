@@ -1,26 +1,26 @@
 import SudokuCore
 
-public enum PuzzleGridError: Error, Equatable, Sendable {
+enum PuzzleGridError: Error, Equatable, Sendable {
     case invalidCellCount(value: Int, expected: Int)
     case invalidDigit(Int)
 }
 
-public struct PuzzleGrid: Equatable, Hashable, Sendable {
-    public static let size = StandardGrid.size
-    public static let cellCount = StandardGrid.cellCount
-    public static let blockSide = StandardGrid.blockSide
+struct PuzzleGrid: Equatable, Hashable, Sendable {
+    static let size = StandardGrid.size
+    static let cellCount = StandardGrid.cellCount
+    static let blockSide = StandardGrid.blockSide
 
     private let values: [Int]
 
-    public var cells: [Int] {
+    var cells: [Int] {
         values
     }
 
-    public init() {
+    init() {
         values = Array(repeating: 0, count: Self.cellCount)
     }
 
-    public init(cells: [Int]) throws {
+    init(cells: [Int]) throws {
         guard cells.count == Self.cellCount else {
             throw PuzzleGridError.invalidCellCount(value: cells.count, expected: Self.cellCount)
         }
@@ -34,19 +34,19 @@ public struct PuzzleGrid: Equatable, Hashable, Sendable {
         values = cells
     }
 
-    public func value(at index: Int) -> Int {
+    func value(at index: Int) -> Int {
         values[index]
     }
 
-    public func value(row: Int, column: Int) -> Int {
+    func value(row: Int, column: Int) -> Int {
         values[StandardGrid.index(row: row, column: column)]
     }
 
-    public subscript(_ index: Int) -> Int {
+    subscript(_ index: Int) -> Int {
         value(at: index)
     }
 
-    public subscript(row row: Int, column column: Int) -> Int {
+    subscript(row row: Int, column column: Int) -> Int {
         value(row: row, column: column)
     }
 

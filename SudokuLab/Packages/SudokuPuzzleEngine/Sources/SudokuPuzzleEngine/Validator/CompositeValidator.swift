@@ -1,15 +1,15 @@
-public struct CompositeValidator: Validator {
+struct CompositeValidator: Validator {
     private let validators: [any Validator]
 
-    public init(_ validators: any Validator...) {
+    init(_ validators: any Validator...) {
         self.validators = validators
     }
 
-    public init(_ validators: [any Validator]) {
+    init(_ validators: [any Validator]) {
         self.validators = validators
     }
 
-    public func validate(_ grid: PuzzleGrid) throws {
+    func validate(_ grid: PuzzleGrid) throws {
         var issues: [ValidationIssue] = []
 
         for validator in validators {

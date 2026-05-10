@@ -31,6 +31,34 @@ struct SudokuDomainTests {
         #expect(board.positions.last == Position(row: 8, column: 8))
     }
 
+    @Test func boardExposesPublicTopology() throws {
+        let board = Board()
+        let topology = BoardTopology()
+
+        #expect(board.topology == topology)
+        #expect(board.positions == topology.positions)
+        #expect(board[row: 0] == topology.rows[0])
+        #expect(board[column: 0] == topology.columns[0])
+        #expect(board[block: 0] == topology.blocks[0])
+    }
+
+    @Test func boardTopologyIndexesStandardPositions() throws {
+        let topology = BoardTopology()
+        let position = Position(row: 4, column: 7)
+
+        #expect(try topology.index(for: position) == 43)
+        #expect(topology.uncheckedIndex(for: position) == 43)
+        #expect(topology.position(at: 43) == position)
+        #expect(topology.row(forIndex: 43) == 4)
+        #expect(topology.column(forIndex: 43) == 7)
+        #expect(topology.block(row: 4, column: 7) == 5)
+        #expect(topology.position(at: -1) == nil)
+        #expect(topology.position(at: 81) == nil)
+        #expect(throws: BoardError.invalidPosition(Position(row: 9, column: 0))) {
+            _ = try topology.index(for: Position(row: 9, column: 0))
+        }
+    }
+
     @Test func boardExposesRowColumnAndBlockPositions() throws {
         let board = Board()
 

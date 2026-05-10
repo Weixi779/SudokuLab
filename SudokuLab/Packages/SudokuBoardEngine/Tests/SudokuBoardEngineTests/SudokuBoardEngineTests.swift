@@ -1,10 +1,10 @@
+import SudokuBoardEngine
 import SudokuCore
 import SudokuDomain
-import SudokuPuzzleEngine
 import Testing
 
 @Suite
-struct SudokuPuzzleEngineTests {
+struct SudokuBoardEngineTests {
     @Test func solvedBoardSolvesToItself() throws {
         let board = try board(clues: solvedGrid)
         let solution = try #require(try MRVBitmaskBoardSolver().solve(board))

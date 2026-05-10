@@ -1,6 +1,6 @@
+import SudokuBoardEngine
 import SudokuCore
 import SudokuDomain
-import SudokuPuzzleEngine
 import Testing
 
 @Suite

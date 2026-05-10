@@ -1,4 +1,4 @@
-# 0005: Extract SudokuPuzzleEngine Package
+# 0005: Extract SudokuBoardEngine Package
 
 Date: 2026-05-02
 
@@ -6,12 +6,12 @@ Date: 2026-05-02
 
 Accepted, amended by [0006](0006-refine-sudoku-package-boundaries.md)
 
-2026-05-03 amendment: `SudokuPuzzleEngine` now depends on `SudokuCore` for
+2026-05-03 amendment: `SudokuBoardEngine` now depends on `SudokuCore` for
 shared primitive values and validation issue coordinates. The old `PuzzleUnit`
 API is removed.
 
 2026-05-06 amendment: superseded by [0006](0006-refine-sudoku-package-boundaries.md).
-`SudokuPuzzleEngine` now depends on `SudokuDomain` for board solver/generator
+`SudokuBoardEngine` now depends on `SudokuDomain` for board solver/generator
 contracts. `PuzzleGrid` and the validator family are implementation details
 instead of the package's app-facing API.
 
@@ -23,14 +23,14 @@ They should stay independent from SwiftUI, SwiftData, FactoryKit, and the
 app-facing semantic model now isolated in `SudokuDomain`.
 
 `SudokuCore` expresses shared primitive values such as digits and positions.
-After the 2026-05-06 amendment, the puzzle engine uses `SudokuDomain.Board`
+After the 2026-05-06 amendment, the board engine uses `SudokuDomain.Board`
 contracts publicly while keeping a numeric `PuzzleGrid` representation and
 standard 9x9 topology internally.
 
 ## Decision
 
-Create a local Swift package named `SudokuPuzzleEngine` under
-`SudokuLab/Packages/SudokuPuzzleEngine`.
+Create a local Swift package named `SudokuBoardEngine` under
+`SudokuLab/Packages/SudokuBoardEngine`.
 
 The package now depends on `SudokuDomain` and implements its board solver and
 generator contracts. App-facing code should use `Board`, `BoardSolver`, and
@@ -67,9 +67,9 @@ future work.
 
 ## Consequences
 
-- Package tests use ordinary `import SudokuPuzzleEngine` for public solver and
+- Package tests use ordinary `import SudokuBoardEngine` for public solver and
   generator behavior, and `@testable import` for internal grid/validator checks.
-- The app can link `SudokuPuzzleEngine` as an implementation of
+- The app can link `SudokuBoardEngine` as an implementation of
   `SudokuDomain` board contracts.
 - Benchmarks can be added later to compare internal solver/generator strategies
   without changing public callers.

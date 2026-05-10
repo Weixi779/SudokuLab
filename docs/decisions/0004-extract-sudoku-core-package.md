@@ -26,12 +26,11 @@ Create a local Swift package named `SudokuCore` under
 
 The package originally owned the pure Swift Sudoku domain model and rule
 validation. After ADR 0006, `SudokuCore` owns only shared primitive values and
-`SudokuDomain` owns app-facing grid and player rule validation. Standard 9x9
-topology is kept in Domain and Engine internals until a real topology
-abstraction is needed.
+`SudokuDomain` owns app-facing grid, public `BoardTopology`, and player rule
+validation.
 
 Solving, solution counting, generation, and difficulty scoring belong in a
-separate pure puzzle engine package. After the 2026-05-06 ADR 0006 amendment,
+separate pure board engine package. After the 2026-05-06 ADR 0006 amendment,
 that package depends on `SudokuDomain` for board solver/generator contracts and
 on `SudokuCore` for shared primitive values.
 
@@ -48,7 +47,7 @@ usage.
 
 ## Consequences
 
-- App targets can depend on `SudokuDomain` and `SudokuPuzzleEngine`, while
+- App targets can depend on `SudokuDomain` and `SudokuBoardEngine`, while
   `SudokuCore` remains free of SwiftUI, SwiftData, FactoryKit, and
   FactoryTesting.
 - `SudokuCore` is intentionally small enough to build without a dedicated test

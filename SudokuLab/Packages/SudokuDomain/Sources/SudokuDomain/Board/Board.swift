@@ -2,8 +2,8 @@ import SudokuCore
 
 public struct Board: Sendable {
     public let size: BoardSize
+    public let topology: BoardTopology
     private var cells: [Cell]
-    private let topology: Topology
 
     // MARK: - Initialization
 
@@ -50,7 +50,7 @@ public struct Board: Sendable {
 
     fileprivate init(size: BoardSize, cells: [Cell]) {
         self.size = size
-        topology = Topology(size: size)
+        topology = BoardTopology(size: size)
         self.cells = cells
     }
 
@@ -72,11 +72,11 @@ extension Board: Equatable {
 extension Board {
     public subscript(_ position: Position) -> Cell {
         precondition(contains(position), "Position is outside the board.")
-        return cells[uncheckedIndex(for: position)]
+        return cells[topology.uncheckedIndex(for: position)]
     }
 
     public func cell(at position: Position) throws -> Cell {
-        cells[try index(for: position)]
+        cells[try topology.index(for: position)]
     }
 }
 
@@ -107,7 +107,7 @@ extension Board {
 
 extension Board {
     public mutating func setEntry(_ digit: Digit?, at position: Position) throws {
-        let index = try index(for: position)
+        let index = try topology.index(for: position)
         let cell = cells[index]
 
         guard !cell.isClue else {
@@ -147,81 +147,6 @@ extension Board {
     fileprivate static func validate(_ digit: Digit, boardSize: BoardSize) throws {
         guard boardSize.digitValues.contains(digit.value) else {
             throw BoardError.invalidDigit(value: digit.value, maximum: boardSize.sideLength)
-        }
-    }
-}
-
-// MARK: - Private Indexing
-
-extension Board {
-    fileprivate func index(for position: Position) throws -> Int {
-        guard contains(position) else {
-            throw BoardError.invalidPosition(position)
-        }
-
-        return uncheckedIndex(for: position)
-    }
-
-    fileprivate func uncheckedIndex(for position: Position) -> Int {
-        position.row * size.sideLength + position.column
-    }
-}
-
-// MARK: - Topology Model
-
-private struct Topology: Sendable {
-    let positions: [Position]
-    let rows: [[Position]]
-    let columns: [[Position]]
-    let blocks: [[Position]]
-
-    private let sideLength: Int
-
-    init(size: BoardSize) {
-        let indices = size.positionIndices
-        let rows = Self.makeRows(indices: indices)
-
-        sideLength = size.sideLength
-        self.rows = rows
-        positions = rows.flatMap { $0 }
-        columns = Self.makeColumns(indices: indices)
-        blocks = Self.makeBlocks(indices: indices, blockSide: size.blockSide)
-    }
-
-    private func lowerThanLength(_ index: Int) -> Bool {
-        index >= 0 && index < sideLength
-    }
-
-    func contains(_ position: Position) -> Bool {
-        lowerThanLength(position.row) && lowerThanLength(position.column)
-    }
-
-    private static func makeRows(indices: Range<Int>) -> [[Position]] {
-        return indices.map { row in
-            indices.map { column in
-                Position(row: row, column: column)
-            }
-        }
-    }
-
-    private static func makeColumns(indices: Range<Int>) -> [[Position]] {
-        return indices.map { column in
-            indices.map { row in
-                Position(row: row, column: column)
-            }
-        }
-    }
-
-    private static func makeBlocks(indices: Range<Int>, blockSide: Int) -> [[Position]] {
-        indices.map { block in
-            let firstRow = (block / blockSide) * blockSide
-            let firstColumn = (block % blockSide) * blockSide
-
-            return (firstRow..<(firstRow + blockSide)).flatMap { row in
-                (firstColumn..<(firstColumn + blockSide)).map { column in
-                    Position(row: row, column: column)
-                }
-            }
         }
     }
 }

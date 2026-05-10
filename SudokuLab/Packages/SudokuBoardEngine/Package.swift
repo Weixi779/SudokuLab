@@ -3,14 +3,14 @@
 import PackageDescription
 
 let package = Package(
-    name: "SudokuPuzzleEngine",
+    name: "SudokuBoardEngine",
     platforms: [
         .iOS("26.0")
     ],
     products: [
         .library(
-            name: "SudokuPuzzleEngine",
-            targets: ["SudokuPuzzleEngine"]
+            name: "SudokuBoardEngine",
+            targets: ["SudokuBoardEngine"]
         )
     ],
     dependencies: [
@@ -19,16 +19,16 @@ let package = Package(
     ],
     targets: [
         .target(
-            name: "SudokuPuzzleEngine",
+            name: "SudokuBoardEngine",
             dependencies: [
                 .product(name: "SudokuCore", package: "SudokuCore"),
                 .product(name: "SudokuDomain", package: "SudokuDomain"),
             ]
         ),
         .testTarget(
-            name: "SudokuPuzzleEngineTests",
+            name: "SudokuBoardEngineTests",
             dependencies: [
-                "SudokuPuzzleEngine",
+                "SudokuBoardEngine",
                 .product(name: "SudokuCore", package: "SudokuCore"),
                 .product(name: "SudokuDomain", package: "SudokuDomain"),
             ]

@@ -1,7 +1,7 @@
 import SudokuCore
 import Testing
 
-@testable import SudokuPuzzleEngine
+@testable import SudokuBoardEngine
 
 @Suite
 struct ValidatorTests {

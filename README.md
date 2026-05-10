@@ -38,7 +38,7 @@ SudokuLab/
   Packages/
     SudokuCore/             Shared Sudoku primitive values and standard board vocabulary
     SudokuDomain/           App-facing board, rules, and solver/generator contracts
-    SudokuPuzzleEngine/     Pure Swift implementations for board solving and generation
+    SudokuBoardEngine/      Pure Swift implementations for board solving and generation
   SudokuLab/                App source
     App/                    App root view, tabs, and root store
     Features/               Feature root screens
@@ -76,7 +76,7 @@ Format Swift code with the bundled Swift formatter:
 swift format format --recursive --in-place --parallel --configuration .swift-format \
   SudokuLab/SudokuLab SudokuLab/SudokuLabTests SudokuLab/SudokuLabUITests \
   SudokuLab/Packages/SudokuCore SudokuLab/Packages/SudokuDomain \
-  SudokuLab/Packages/SudokuPuzzleEngine
+  SudokuLab/Packages/SudokuBoardEngine
 ```
 
 Run the Sudoku domain package tests:
@@ -85,10 +85,10 @@ Run the Sudoku domain package tests:
 swift test --package-path SudokuLab/Packages/SudokuDomain
 ```
 
-Run the Sudoku puzzle engine package tests:
+Run the Sudoku board engine package tests:
 
 ```sh
-swift test --package-path SudokuLab/Packages/SudokuPuzzleEngine
+swift test --package-path SudokuLab/Packages/SudokuBoardEngine
 ```
 
 Lint Swift formatting:
@@ -97,7 +97,7 @@ Lint Swift formatting:
 swift format lint --recursive --configuration .swift-format \
   SudokuLab/SudokuLab SudokuLab/SudokuLabTests SudokuLab/SudokuLabUITests \
   SudokuLab/Packages/SudokuCore SudokuLab/Packages/SudokuDomain \
-  SudokuLab/Packages/SudokuPuzzleEngine
+  SudokuLab/Packages/SudokuBoardEngine
 ```
 
 Check for whitespace errors before committing:

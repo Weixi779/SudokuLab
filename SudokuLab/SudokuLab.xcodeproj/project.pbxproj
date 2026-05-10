@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		602C67122FA600AC00D1ED4D /* SudokuPuzzleEngine in Frameworks */ = {isa = PBXBuildFile; productRef = 602C67112FA600AC00D1ED4D /* SudokuPuzzleEngine */; };
+		602C67122FA600AC00D1ED4D /* SudokuBoardEngine in Frameworks */ = {isa = PBXBuildFile; productRef = 602C67112FA600AC00D1ED4D /* SudokuBoardEngine */; };
 		602C67222FA610AC00D1ED4D /* SudokuDomain in Frameworks */ = {isa = PBXBuildFile; productRef = 602C67212FA610AC00D1ED4D /* SudokuDomain */; };
 		60F000012FA6000000000001 /* FactoryKit in Frameworks */ = {isa = PBXBuildFile; productRef = 60F000042FA6000000000004 /* FactoryKit */; };
 		60F000022FA6000000000002 /* FactoryTesting in Frameworks */ = {isa = PBXBuildFile; productRef = 60F000052FA6000000000005 /* FactoryTesting */; };
@@ -42,7 +42,7 @@
 			membershipExceptions = (
 				SudokuCore,
 				SudokuDomain,
-				SudokuPuzzleEngine,
+				SudokuBoardEngine,
 			);
 			target = 60BC8DEF2FA4CB8C00FB0032 /* SudokuLab */;
 		};
@@ -80,7 +80,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				602C67222FA610AC00D1ED4D /* SudokuDomain in Frameworks */,
-				602C67122FA600AC00D1ED4D /* SudokuPuzzleEngine in Frameworks */,
+				602C67122FA600AC00D1ED4D /* SudokuBoardEngine in Frameworks */,
 				60F000012FA6000000000001 /* FactoryKit in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -147,7 +147,7 @@
 			packageProductDependencies = (
 				60F000042FA6000000000004 /* FactoryKit */,
 				602C67212FA610AC00D1ED4D /* SudokuDomain */,
-				602C67112FA600AC00D1ED4D /* SudokuPuzzleEngine */,
+				602C67112FA600AC00D1ED4D /* SudokuBoardEngine */,
 			);
 			productName = SudokuLab;
 			productReference = 60BC8DF02FA4CB8C00FB0032 /* SudokuLab.app */;
@@ -628,13 +628,13 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		602C67112FA600AC00D1ED4D /* SudokuBoardEngine */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = SudokuBoardEngine;
+		};
 		602C67212FA610AC00D1ED4D /* SudokuDomain */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = SudokuDomain;
-		};
-		602C67112FA600AC00D1ED4D /* SudokuPuzzleEngine */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = SudokuPuzzleEngine;
 		};
 		60F000042FA6000000000004 /* FactoryKit */ = {
 			isa = XCSwiftPackageProductDependency;

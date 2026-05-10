@@ -10,7 +10,8 @@ struct SudokuDomainTests {
 
         #expect(board.size == boardSize)
         #expect(board.cellCount == 81)
-        #expect(boardSize.size == 9)
+        #expect(boardSize.sideLength == 9)
+        #expect(boardSize.cellCount == 81)
         #expect(boardSize.blockSide == 3)
         #expect(board[Position(row: 0, column: 0)] == .empty)
         #expect(try board.cell(at: Position(row: 8, column: 8)) == .empty)
@@ -34,7 +35,7 @@ struct SudokuDomainTests {
         let board = Board()
 
         #expect(
-            board.rows[0] == [
+            board[row: 0] == [
                 Position(row: 0, column: 0),
                 Position(row: 0, column: 1),
                 Position(row: 0, column: 2),
@@ -46,7 +47,7 @@ struct SudokuDomainTests {
                 Position(row: 0, column: 8),
             ])
         #expect(
-            board.columns[0] == [
+            board[column: 0] == [
                 Position(row: 0, column: 0),
                 Position(row: 1, column: 0),
                 Position(row: 2, column: 0),
@@ -58,7 +59,7 @@ struct SudokuDomainTests {
                 Position(row: 8, column: 0),
             ])
         #expect(
-            board.blocks[0] == [
+            board[block: 0] == [
                 Position(row: 0, column: 0),
                 Position(row: 0, column: 1),
                 Position(row: 0, column: 2),
@@ -69,9 +70,6 @@ struct SudokuDomainTests {
                 Position(row: 2, column: 1),
                 Position(row: 2, column: 2),
             ])
-        #expect(board[row: 0] == board.rows[0])
-        #expect(board[column: 0] == board.columns[0])
-        #expect(board[block: 0] == board.blocks[0])
     }
 
     @Test func boardContainsStandardPositionsAndDigits() throws {
@@ -137,9 +135,9 @@ struct SudokuDomainTests {
         let board = Board()
         let uniqueRule = UniqueRule(board: board)
 
-        #expect(uniqueRule.rowsRule.rules.count == board.size.size)
-        #expect(uniqueRule.columnsRule.rules.count == board.size.size)
-        #expect(uniqueRule.blocksRule.rules.count == board.size.size)
+        #expect(uniqueRule.rowsRule.rules.count == board.size.positionIndices.count)
+        #expect(uniqueRule.columnsRule.rules.count == board.size.positionIndices.count)
+        #expect(uniqueRule.blocksRule.rules.count == board.size.positionIndices.count)
     }
 
     @Test func rowColumnAndBlockRulesValidateTheirBoardGroups() throws {
@@ -438,11 +436,11 @@ struct SudokuDomainTests {
     }
 
     private func cellCount() -> Int {
-        BoardSize.standard.size * BoardSize.standard.size
+        BoardSize.standard.cellCount
     }
 
     private func index(for position: Position) -> Int {
-        position.row * BoardSize.standard.size + position.column
+        position.row * BoardSize.standard.sideLength + position.column
     }
 
     private func digits(_ values: ClosedRange<Int>) -> Set<Digit> {

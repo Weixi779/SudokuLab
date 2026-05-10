@@ -30,7 +30,7 @@ public struct UniqueRule: Rule, Sendable {
     }
 
     private func digits(for board: Board) -> Set<Digit> {
-        Set((1...board.size.size).map(Digit.init))
+        Set(board.size.digitValues.map(Digit.init))
     }
 
     private struct RuleGroup: Sendable {
@@ -45,17 +45,12 @@ public struct UniqueRule: Rule, Sendable {
         }
 
         func candidates(at position: Position, on board: Board) -> Set<Digit>? {
-            var candidates: Set<Digit>?
-
-            for rule in rules {
-                guard let ruleCandidates = rule.candidates(at: position, on: board) else {
-                    continue
+            rules.lazy
+                .compactMap { $0.candidates(at: position, on: board) }
+                .reduce(into: Set<Digit>?.none) { candidates, ruleCandidates in
+                    candidates =
+                        candidates.map { $0.intersection(ruleCandidates) } ?? ruleCandidates
                 }
-
-                candidates = candidates.map { $0.intersection(ruleCandidates) } ?? ruleCandidates
-            }
-
-            return candidates
         }
 
         private func uniqued(_ violations: [Violation]) -> [Violation] {

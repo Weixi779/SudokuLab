@@ -94,11 +94,11 @@ struct SudokuPuzzleEngineTests {
     }
 
     private func index(row: Int, column: Int) -> Int {
-        row * BoardSize.standard.size + column
+        row * BoardSize.standard.sideLength + column
     }
 
     private func cellCount() -> Int {
-        BoardSize.standard.size * BoardSize.standard.size
+        BoardSize.standard.cellCount
     }
 
     private var standardPuzzle: [Int] {

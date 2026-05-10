@@ -4,7 +4,7 @@ public struct RowsRule: Rule, Sendable {
     public let rules: [RowRule]
 
     public init(board: Board) {
-        rules = (0..<board.size.size).map { row in
+        rules = board.size.positionIndices.map { row in
             RowRule(row: row, on: board)
         }
     }

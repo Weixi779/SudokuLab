@@ -10,18 +10,7 @@ public struct RowRule: Rule, Equatable, Hashable, Sendable {
     }
 
     public func validate(_ board: Board) -> [Violation] {
-        var positionsByDigit: [Digit: [Position]] = [:]
-
-        for position in positions where board.contains(position) {
-            guard let digit = board[position].digit else { continue }
-            positionsByDigit[digit, default: []].append(position)
-        }
-
-        return positionsByDigit.keys.sorted().compactMap { digit in
-            let positions = positionsByDigit[digit, default: []].sorted()
-            guard positions.count > 1 else { return nil }
-            return .duplicateDigit(digit, positions: positions)
-        }
+        DuplicateDigitScanner.violations(in: positions, on: board)
     }
 
     public func candidates(at position: Position, on board: Board) -> Set<Digit>? {
@@ -40,6 +29,6 @@ public struct RowRule: Rule, Equatable, Hashable, Sendable {
     }
 
     private func digits(for board: Board) -> Set<Digit> {
-        Set((1...board.size.size).map(Digit.init))
+        Set(board.size.digitValues.map(Digit.init))
     }
 }

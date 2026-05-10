@@ -1,49 +1,75 @@
 import SudokuCore
 
-public struct Board: Equatable, Sendable {
+public struct Board: Sendable {
     public let size: BoardSize
     private var cells: [Cell]
+    private let topology: Topology
+
+    // MARK: - Initialization
 
     public init() {
-        size = .standard
-        cells = Array(repeating: .empty, count: Self.cellCount(for: size))
+        let boardSize = BoardSize.standard
+
+        self.init(size: boardSize, cells: Array(repeating: .empty, count: boardSize.cellCount))
     }
 
     public init(cells: [Cell]) throws {
         let boardSize = BoardSize.standard
 
-        guard cells.count == Self.cellCount(for: boardSize) else {
+        guard cells.count == boardSize.cellCount else {
             throw SudokuDomainError.invalidCellCount(
                 value: cells.count,
-                expected: Self.cellCount(for: boardSize)
+                expected: boardSize.cellCount
             )
         }
 
         try Self.validate(cells, boardSize: boardSize)
 
-        size = boardSize
-        self.cells = cells
+        self.init(size: boardSize, cells: cells)
     }
 
     public init(clues: [Int?]) throws {
         let boardSize = BoardSize.standard
 
-        guard clues.count == Self.cellCount(for: boardSize) else {
+        guard clues.count == boardSize.cellCount else {
             throw SudokuDomainError.invalidCellCount(
                 value: clues.count,
-                expected: Self.cellCount(for: boardSize)
+                expected: boardSize.cellCount
             )
         }
 
-        size = boardSize
-        cells = try clues.map { value in
+        let cells: [Cell] = try clues.map { value in
             guard let value else { return .empty }
             let digit = Digit(value)
             try Self.validate(digit, boardSize: boardSize)
             return .clue(digit)
         }
+
+        self.init(size: boardSize, cells: cells)
     }
 
+    fileprivate init(size: BoardSize, cells: [Cell]) {
+        self.size = size
+        topology = Topology(size: size)
+        self.cells = cells
+    }
+
+    // MARK: - Dimensions
+
+    public var cellCount: Int {
+        size.cellCount
+    }
+}
+
+extension Board: Equatable {
+    public static func == (lhs: Board, rhs: Board) -> Bool {
+        lhs.size == rhs.size && lhs.cells == rhs.cells
+    }
+}
+
+// MARK: - Cell Access
+
+extension Board {
     public subscript(_ position: Position) -> Cell {
         precondition(contains(position), "Position is outside the board.")
         return cells[uncheckedIndex(for: position)]
@@ -52,60 +78,34 @@ public struct Board: Equatable, Sendable {
     public func cell(at position: Position) throws -> Cell {
         cells[try index(for: position)]
     }
+}
 
-    public var cellCount: Int {
-        Self.cellCount(for: size)
-    }
+// MARK: - Topology
 
+extension Board {
     public var positions: [Position] {
-        (0..<size.size).flatMap { row in
-            (0..<size.size).map { column in
-                Position(row: row, column: column)
-            }
-        }
+        topology.positions
     }
 
-    public var rows: [[Position]] {
-        (0..<size.size).map { self[row: $0] }
+    public subscript(row index: Int) -> [Position] {
+        precondition(topology.rows.indices.contains(index), "Row is outside the board.")
+        return topology.rows[index]
     }
 
-    public var columns: [[Position]] {
-        (0..<size.size).map { self[column: $0] }
+    public subscript(column index: Int) -> [Position] {
+        precondition(topology.columns.indices.contains(index), "Column is outside the board.")
+        return topology.columns[index]
     }
 
-    public var blocks: [[Position]] {
-        (0..<size.size).map { self[block: $0] }
+    public subscript(block index: Int) -> [Position] {
+        precondition(topology.blocks.indices.contains(index), "Block is outside the board.")
+        return topology.blocks[index]
     }
+}
 
-    public subscript(row row: Int) -> [Position] {
-        precondition((0..<size.size).contains(row), "Row is outside the board.")
+// MARK: - Mutation
 
-        return (0..<size.size).map { column in
-            Position(row: row, column: column)
-        }
-    }
-
-    public subscript(column column: Int) -> [Position] {
-        precondition((0..<size.size).contains(column), "Column is outside the board.")
-
-        return (0..<size.size).map { row in
-            Position(row: row, column: column)
-        }
-    }
-
-    public subscript(block block: Int) -> [Position] {
-        precondition((0..<size.size).contains(block), "Block is outside the board.")
-
-        let firstRow = (block / size.blockSide) * size.blockSide
-        let firstColumn = (block % size.blockSide) * size.blockSide
-
-        return (firstRow..<(firstRow + size.blockSide)).flatMap { row in
-            (firstColumn..<(firstColumn + size.blockSide)).map { column in
-                Position(row: row, column: column)
-            }
-        }
-    }
-
+extension Board {
     public mutating func setEntry(_ digit: Digit?, at position: Position) throws {
         let index = try index(for: position)
         let cell = cells[index]
@@ -120,21 +120,41 @@ public struct Board: Equatable, Sendable {
 
         cells[index] = digit.map(Cell.entry) ?? .empty
     }
+}
 
-    private var maximumDigit: Int {
-        size.size
-    }
+// MARK: - Validation
 
+extension Board {
     public func contains(_ position: Position) -> Bool {
-        (0..<size.size).contains(position.row)
-            && (0..<size.size).contains(position.column)
+        topology.contains(position)
     }
 
     public func contains(_ digit: Digit) -> Bool {
-        (1...maximumDigit).contains(digit.value)
+        size.digitValues.contains(digit.value)
+    }
+}
+
+// MARK: - Private Validation
+
+extension Board {
+    fileprivate static func validate(_ cells: [Cell], boardSize: BoardSize) throws {
+        for cell in cells {
+            guard let digit = cell.digit else { continue }
+            try validate(digit, boardSize: boardSize)
+        }
     }
 
-    private func index(for position: Position) throws -> Int {
+    fileprivate static func validate(_ digit: Digit, boardSize: BoardSize) throws {
+        guard boardSize.digitValues.contains(digit.value) else {
+            throw SudokuDomainError.invalidDigit(value: digit.value, maximum: boardSize.sideLength)
+        }
+    }
+}
+
+// MARK: - Private Indexing
+
+extension Board {
+    fileprivate func index(for position: Position) throws -> Int {
         guard contains(position) else {
             throw SudokuDomainError.invalidPosition(position)
         }
@@ -142,24 +162,66 @@ public struct Board: Equatable, Sendable {
         return uncheckedIndex(for: position)
     }
 
-    private func uncheckedIndex(for position: Position) -> Int {
-        position.row * size.size + position.column
+    fileprivate func uncheckedIndex(for position: Position) -> Int {
+        position.row * size.sideLength + position.column
+    }
+}
+
+// MARK: - Topology Model
+
+private struct Topology: Sendable {
+    let positions: [Position]
+    let rows: [[Position]]
+    let columns: [[Position]]
+    let blocks: [[Position]]
+
+    private let sideLength: Int
+
+    init(size: BoardSize) {
+        let indices = size.positionIndices
+        let rows = Self.makeRows(indices: indices)
+
+        sideLength = size.sideLength
+        self.rows = rows
+        positions = rows.flatMap { $0 }
+        columns = Self.makeColumns(indices: indices)
+        blocks = Self.makeBlocks(indices: indices, blockSide: size.blockSide)
     }
 
-    private static func cellCount(for boardSize: BoardSize) -> Int {
-        boardSize.size * boardSize.size
+    private func lowerThanLength(_ index: Int) -> Bool {
+        index >= 0 && index < sideLength
     }
 
-    private static func validate(_ cells: [Cell], boardSize: BoardSize) throws {
-        for cell in cells {
-            guard let digit = cell.digit else { continue }
-            try validate(digit, boardSize: boardSize)
+    func contains(_ position: Position) -> Bool {
+        lowerThanLength(position.row) && lowerThanLength(position.column)
+    }
+
+    private static func makeRows(indices: Range<Int>) -> [[Position]] {
+        return indices.map { row in
+            indices.map { column in
+                Position(row: row, column: column)
+            }
         }
     }
 
-    private static func validate(_ digit: Digit, boardSize: BoardSize) throws {
-        guard (1...boardSize.size).contains(digit.value) else {
-            throw SudokuDomainError.invalidDigit(value: digit.value, maximum: boardSize.size)
+    private static func makeColumns(indices: Range<Int>) -> [[Position]] {
+        return indices.map { column in
+            indices.map { row in
+                Position(row: row, column: column)
+            }
+        }
+    }
+
+    private static func makeBlocks(indices: Range<Int>, blockSide: Int) -> [[Position]] {
+        indices.map { block in
+            let firstRow = (block / blockSide) * blockSide
+            let firstColumn = (block % blockSide) * blockSide
+
+            return (firstRow..<(firstRow + blockSide)).flatMap { row in
+                (firstColumn..<(firstColumn + blockSide)).map { column in
+                    Position(row: row, column: column)
+                }
+            }
         }
     }
 }

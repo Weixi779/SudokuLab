@@ -11,12 +11,20 @@ struct GeneratorTests {
 
         let generated = try generator.generate()
 
-        #expect(SudokuRules().validate(generated.solution).isEmpty)
+        #expect(
+            UniqueRule(board: generated.solution)
+                .validate(generated.solution)
+                .isEmpty
+        )
         #expect(
             generated.solution.positions.allSatisfy { position in
                 generated.solution[position].digit != nil
             })
-        #expect(SudokuRules().validate(generated.puzzle).isEmpty)
+        #expect(
+            UniqueRule(board: generated.puzzle)
+                .validate(generated.puzzle)
+                .isEmpty
+        )
         #expect(try MRVBitmaskBoardSolver().hasUniqueSolution(generated.puzzle))
         #expect(
             digits(in: try #require(try MRVBitmaskBoardSolver().solve(generated.puzzle)))
@@ -96,17 +104,6 @@ struct GeneratorTests {
             var generator = RandomizedBoardGenerator(
                 configuration: BoardGenerationConfiguration(goal: .targetClueCount(82)),
                 randomNumberGenerator: SeededRandomNumberGenerator(seed: 5))
-            _ = try generator.generate()
-        }
-    }
-
-    @Test func generatorRejectsUnsupportedBoardSize() {
-        let boardSize = BoardSize(size: 4, blockSide: 2)
-
-        #expect(throws: BoardGenerationError.unsupportedBoardSize(boardSize)) {
-            var generator = RandomizedBoardGenerator(
-                configuration: BoardGenerationConfiguration(boardSize: boardSize),
-                randomNumberGenerator: SeededRandomNumberGenerator(seed: 6))
             _ = try generator.generate()
         }
     }

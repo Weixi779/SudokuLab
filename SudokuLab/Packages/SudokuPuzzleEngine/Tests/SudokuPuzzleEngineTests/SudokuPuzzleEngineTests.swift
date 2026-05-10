@@ -67,19 +67,6 @@ struct SudokuPuzzleEngineTests {
         #expect(try solver.solutionCount(for: board, limit: 2) == 2)
     }
 
-    @Test func solverRejectsUnsupportedBoardSize() throws {
-        let boardSize = BoardSize(size: 4, blockSide: 2)
-        let board = try Board(boardSize: boardSize)
-        let solver = MRVBitmaskBoardSolver()
-
-        #expect(throws: BoardSolvingError.unsupportedBoardSize(boardSize)) {
-            _ = try solver.solve(board)
-        }
-        #expect(throws: BoardSolvingError.unsupportedBoardSize(boardSize)) {
-            _ = try solver.solutionCount(for: board, limit: 2)
-        }
-    }
-
     private func board(clues: [Int]) throws -> Board {
         try Board(clues: clues.map { $0 == 0 ? nil : $0 })
     }

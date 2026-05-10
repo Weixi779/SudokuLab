@@ -8,7 +8,7 @@ struct SudokuDomainTests {
         let board = Board()
         let boardSize = BoardSize.standard
 
-        #expect(board.boardSize == boardSize)
+        #expect(board.size == boardSize)
         #expect(board.cellCount == 81)
         #expect(boardSize.size == 9)
         #expect(boardSize.blockSide == 3)
@@ -16,20 +16,8 @@ struct SudokuDomainTests {
         #expect(try board.cell(at: Position(row: 8, column: 8)) == .empty)
     }
 
-    @Test func boardUsesInjectedBoardSize() throws {
-        let boardSize = BoardSize(size: 4, blockSide: 2)
-        var cells = emptyCells(for: boardSize)
-        cells[index(for: Position(row: 3, column: 3), boardSize: boardSize)] = .entry(Digit(4))
-
-        let board = try Board(cells: cells, boardSize: boardSize)
-
-        #expect(board.boardSize == boardSize)
-        #expect(board.cellCount == 16)
-        #expect(try board.cell(at: Position(row: 3, column: 3)) == .entry(Digit(4)))
-    }
-
     @Test func boardPositionsUseRowMajorOrder() throws {
-        let board = try Board(boardSize: BoardSize(size: 4, blockSide: 2))
+        let board = Board()
 
         #expect(
             board.positions.prefix(5) == [
@@ -37,23 +25,67 @@ struct SudokuDomainTests {
                 Position(row: 0, column: 1),
                 Position(row: 0, column: 2),
                 Position(row: 0, column: 3),
-                Position(row: 1, column: 0),
+                Position(row: 0, column: 4),
             ])
-        #expect(board.positions.last == Position(row: 3, column: 3))
+        #expect(board.positions.last == Position(row: 8, column: 8))
     }
 
-    @Test func boardContainsPositionsAndDigitsInsideBoardSize() throws {
-        let board = try Board(boardSize: BoardSize(size: 4, blockSide: 2))
+    @Test func boardExposesRowColumnAndBlockPositions() throws {
+        let board = Board()
+
+        #expect(
+            board.rows[0] == [
+                Position(row: 0, column: 0),
+                Position(row: 0, column: 1),
+                Position(row: 0, column: 2),
+                Position(row: 0, column: 3),
+                Position(row: 0, column: 4),
+                Position(row: 0, column: 5),
+                Position(row: 0, column: 6),
+                Position(row: 0, column: 7),
+                Position(row: 0, column: 8),
+            ])
+        #expect(
+            board.columns[0] == [
+                Position(row: 0, column: 0),
+                Position(row: 1, column: 0),
+                Position(row: 2, column: 0),
+                Position(row: 3, column: 0),
+                Position(row: 4, column: 0),
+                Position(row: 5, column: 0),
+                Position(row: 6, column: 0),
+                Position(row: 7, column: 0),
+                Position(row: 8, column: 0),
+            ])
+        #expect(
+            board.blocks[0] == [
+                Position(row: 0, column: 0),
+                Position(row: 0, column: 1),
+                Position(row: 0, column: 2),
+                Position(row: 1, column: 0),
+                Position(row: 1, column: 1),
+                Position(row: 1, column: 2),
+                Position(row: 2, column: 0),
+                Position(row: 2, column: 1),
+                Position(row: 2, column: 2),
+            ])
+        #expect(board[row: 0] == board.rows[0])
+        #expect(board[column: 0] == board.columns[0])
+        #expect(board[block: 0] == board.blocks[0])
+    }
+
+    @Test func boardContainsStandardPositionsAndDigits() throws {
+        let board = Board()
 
         #expect(board.contains(Position(row: 0, column: 0)))
-        #expect(board.contains(Position(row: 3, column: 3)))
-        #expect(!board.contains(Position(row: 4, column: 0)))
-        #expect(!board.contains(Position(row: 0, column: 4)))
+        #expect(board.contains(Position(row: 8, column: 8)))
+        #expect(!board.contains(Position(row: 9, column: 0)))
+        #expect(!board.contains(Position(row: 0, column: 9)))
 
         #expect(board.contains(Digit(1)))
-        #expect(board.contains(Digit(4)))
+        #expect(board.contains(Digit(9)))
         #expect(!board.contains(Digit(0)))
-        #expect(!board.contains(Digit(5)))
+        #expect(!board.contains(Digit(10)))
     }
 
     @Test func boardSolverDefaultUniqueSolutionCheckUsesSolutionCount() throws {
@@ -76,39 +108,88 @@ struct SudokuDomainTests {
         #expect(generation.clueCount == 2)
     }
 
-    @Test func boardGenerationConfigurationDefaultToStandardLocallyMinimal() {
+    @Test func boardGenerationConfigurationDefaultsToLocallyMinimal() {
         let configuration = BoardGenerationConfiguration()
 
-        #expect(configuration.boardSize == .standard)
         #expect(configuration.goal == .locallyMinimal)
     }
 
-    @Test func rulesUseBoardSizeConstraints() throws {
-        let boardSize = BoardSize(size: 4, blockSide: 2)
-        var clues = emptyClues(for: boardSize)
-        clues[index(for: Position(row: 2, column: 2), boardSize: boardSize)] = 4
-        clues[index(for: Position(row: 3, column: 3), boardSize: boardSize)] = 4
-        let board = try Board(clues: clues, boardSize: boardSize)
+    @Test func uniqueRuleUsesBoardTopology() throws {
+        var clues = emptyClues()
+        clues[index(for: Position(row: 3, column: 3))] = 4
+        clues[index(for: Position(row: 5, column: 5))] = 4
+        let board = try Board(clues: clues)
 
         #expect(
-            SudokuRules().validate(board) == [
+            UniqueRule(board: board).validate(board) == [
                 .duplicateDigit(
                     Digit(4),
                     positions: [
-                        Position(row: 2, column: 2),
                         Position(row: 3, column: 3),
+                        Position(row: 5, column: 5),
                     ]
                 )
             ]
         )
     }
 
-    @Test func boardSizeRejectsInvalidShape() {
-        let boardSize = BoardSize(size: 6, blockSide: 2)
+    @Test func collectionRulesUseBoardRowsColumnsAndBlocks() throws {
+        let board = Board()
+        let uniqueRule = UniqueRule(board: board)
 
-        #expect(throws: SudokuDomainError.invalidBoardSize(size: 6, blockSide: 2)) {
-            try Board(boardSize: boardSize)
-        }
+        #expect(uniqueRule.rowsRule.rules.count == board.size.size)
+        #expect(uniqueRule.columnsRule.rules.count == board.size.size)
+        #expect(uniqueRule.blocksRule.rules.count == board.size.size)
+    }
+
+    @Test func rowColumnAndBlockRulesValidateTheirBoardGroups() throws {
+        let rowBoard = try Board(clues: clues([(0, 0, 5), (0, 3, 5)]))
+        let columnBoard = try Board(clues: clues([(0, 0, 5), (3, 0, 5)]))
+        let blockBoard = try Board(clues: clues([(0, 0, 5), (1, 1, 5)]))
+        let rowRule = RowRule(row: 0, on: rowBoard)
+        let columnRule = ColumnRule(column: 0, on: columnBoard)
+        let blockRule = BlockRule(block: 0, on: blockBoard)
+
+        #expect(rowRule.row == 0)
+        #expect(rowRule.positions == rowBoard[row: 0])
+        #expect(columnRule.column == 0)
+        #expect(columnRule.positions == columnBoard[column: 0])
+        #expect(blockRule.block == 0)
+        #expect(blockRule.positions == blockBoard[block: 0])
+
+        #expect(
+            rowRule.validate(rowBoard) == [
+                .duplicateDigit(
+                    Digit(5),
+                    positions: [
+                        Position(row: 0, column: 0),
+                        Position(row: 0, column: 3),
+                    ]
+                )
+            ]
+        )
+        #expect(
+            columnRule.validate(columnBoard) == [
+                .duplicateDigit(
+                    Digit(5),
+                    positions: [
+                        Position(row: 0, column: 0),
+                        Position(row: 3, column: 0),
+                    ]
+                )
+            ]
+        )
+        #expect(
+            blockRule.validate(blockBoard) == [
+                .duplicateDigit(
+                    Digit(5),
+                    positions: [
+                        Position(row: 0, column: 0),
+                        Position(row: 1, column: 1),
+                    ]
+                )
+            ]
+        )
     }
 
     @Test func boardCanBeInitializedFromCells() throws {
@@ -141,30 +222,29 @@ struct SudokuDomainTests {
         }
     }
 
-    @Test func boardRejectsDigitsOutsideBoardSize() throws {
-        let boardSize = BoardSize(size: 4, blockSide: 2)
-        var cells = emptyCells(for: boardSize)
-        cells[index(for: Position(row: 0, column: 0), boardSize: boardSize)] = .entry(Digit(5))
+    @Test func boardRejectsDigitsOutsideStandardRange() throws {
+        var cells = emptyCells()
+        cells[index(for: Position(row: 0, column: 0))] = .entry(Digit(10))
 
-        #expect(throws: SudokuDomainError.invalidDigit(value: 5, maximum: 4)) {
-            try Board(cells: cells, boardSize: boardSize)
+        #expect(throws: SudokuDomainError.invalidDigit(value: 10, maximum: 9)) {
+            try Board(cells: cells)
         }
 
-        var clues = emptyClues(for: boardSize)
-        clues[index(for: Position(row: 0, column: 0), boardSize: boardSize)] = 5
+        var clues = emptyClues()
+        clues[index(for: Position(row: 0, column: 0))] = 10
 
-        #expect(throws: SudokuDomainError.invalidDigit(value: 5, maximum: 4)) {
-            try Board(clues: clues, boardSize: boardSize)
+        #expect(throws: SudokuDomainError.invalidDigit(value: 10, maximum: 9)) {
+            try Board(clues: clues)
         }
 
-        var board = try Board(boardSize: boardSize)
+        var board = Board()
 
-        #expect(throws: SudokuDomainError.invalidDigit(value: 5, maximum: 4)) {
-            try board.setEntry(Digit(5), at: Position(row: 0, column: 0))
+        #expect(throws: SudokuDomainError.invalidDigit(value: 10, maximum: 9)) {
+            try board.setEntry(Digit(10), at: Position(row: 0, column: 0))
         }
     }
 
-    @Test func boardRejectsPositionsOutsideBoardSize() throws {
+    @Test func boardRejectsPositionsOutsideStandardGrid() throws {
         let position = Position(row: 9, column: 0)
         var board = Board()
 
@@ -180,20 +260,20 @@ struct SudokuDomainTests {
     @Test func emptyBoardHasNoViolations() {
         let board = Board()
 
-        #expect(SudokuRules().validate(board).isEmpty)
+        #expect(UniqueRule(board: board).validate(board).isEmpty)
     }
 
     @Test func solvedBoardHasNoViolations() throws {
         let board = try Board(clues: solvedBoard)
 
-        #expect(SudokuRules().validate(board).isEmpty)
+        #expect(UniqueRule(board: board).validate(board).isEmpty)
     }
 
     @Test func rowDuplicateProducesExactViolation() throws {
         let board = try Board(clues: clues([(0, 0, 5), (0, 3, 5)]))
 
         #expect(
-            SudokuRules().validate(board) == [
+            UniqueRule(board: board).validate(board) == [
                 .duplicateDigit(
                     Digit(5),
                     positions: [
@@ -209,7 +289,7 @@ struct SudokuDomainTests {
         let board = try Board(clues: clues([(0, 0, 5), (3, 0, 5)]))
 
         #expect(
-            SudokuRules().validate(board) == [
+            UniqueRule(board: board).validate(board) == [
                 .duplicateDigit(
                     Digit(5),
                     positions: [
@@ -225,7 +305,7 @@ struct SudokuDomainTests {
         let board = try Board(clues: clues([(0, 0, 5), (1, 1, 5)]))
 
         #expect(
-            SudokuRules().validate(board) == [
+            UniqueRule(board: board).validate(board) == [
                 .duplicateDigit(
                     Digit(5),
                     positions: [
@@ -237,10 +317,26 @@ struct SudokuDomainTests {
         )
     }
 
+    @Test func duplicateViolationsAreDeduplicatedAcrossRules() throws {
+        let board = try Board(clues: clues([(0, 0, 5), (0, 1, 5)]))
+
+        #expect(
+            UniqueRule(board: board).validate(board) == [
+                .duplicateDigit(
+                    Digit(5),
+                    positions: [
+                        Position(row: 0, column: 0),
+                        Position(row: 0, column: 1),
+                    ]
+                )
+            ]
+        )
+    }
+
     @Test func emptyCellsDoNotConflict() throws {
         let board = try Board(clues: clues([(0, 0, 5)]))
 
-        #expect(SudokuRules().validate(board).isEmpty)
+        #expect(UniqueRule(board: board).validate(board).isEmpty)
     }
 
     @Test func clueAndEntryBothParticipateInViolations() throws {
@@ -248,7 +344,7 @@ struct SudokuDomainTests {
         try board.setEntry(Digit(5), at: Position(row: 0, column: 3))
 
         #expect(
-            SudokuRules().validate(board) == [
+            UniqueRule(board: board).validate(board) == [
                 .duplicateDigit(
                     Digit(5),
                     positions: [
@@ -258,6 +354,43 @@ struct SudokuDomainTests {
                 )
             ]
         )
+    }
+
+    @Test func uniqueRuleCandidatesUseBoardDigitsOnEmptyBoard() {
+        let board = Board()
+
+        #expect(
+            UniqueRule(board: board).candidates(
+                at: Position(row: 0, column: 0),
+                on: board
+            ) == digits(1...9)
+        )
+    }
+
+    @Test func uniqueRuleCandidatesExcludeRowColumnAndBlockDigits() throws {
+        let board = try Board(clues: clues([(0, 1, 1), (1, 0, 2), (1, 1, 3)]))
+
+        #expect(
+            UniqueRule(board: board).candidates(
+                at: Position(row: 0, column: 0),
+                on: board
+            ) == digits(4...9)
+        )
+    }
+
+    @Test func uniqueRuleCandidatesAreEmptyForFilledOrOutOfBoundsPositions() throws {
+        let board = try Board(clues: clues([(0, 0, 1)]))
+        let rule = UniqueRule(board: board)
+
+        #expect(rule.candidates(at: Position(row: 0, column: 0), on: board) == [])
+        #expect(rule.candidates(at: Position(row: 9, column: 0), on: board) == [])
+    }
+
+    @Test func rowRuleCandidatesExcludeUsedDigits() throws {
+        let board = try Board(clues: clues([(0, 0, 1), (0, 1, 2)]))
+        let rule = RowRule(row: 0, on: board)
+
+        #expect(rule.candidates(at: Position(row: 0, column: 2), on: board) == digits(3...9))
     }
 
     @Test func entryCanBeSetReplacedAndCleared() throws {
@@ -287,31 +420,37 @@ struct SudokuDomainTests {
     }
 
     private func clues(_ entries: [(Int, Int, Int)]) -> [Int?] {
-        let boardSize = BoardSize.standard
-        var clues = emptyClues(for: boardSize)
+        var clues = emptyClues()
 
         for (rowIndex, columnIndex, value) in entries {
-            clues[index(for: Position(row: rowIndex, column: columnIndex), boardSize: boardSize)] =
-                value
+            clues[index(for: Position(row: rowIndex, column: columnIndex))] = value
         }
 
         return clues
     }
 
-    private func emptyCells(for boardSize: BoardSize = .standard) -> [Cell] {
-        Array(repeating: .empty, count: cellCount(for: boardSize))
+    private func emptyCells() -> [Cell] {
+        Array(repeating: .empty, count: cellCount())
     }
 
-    private func emptyClues(for boardSize: BoardSize = .standard) -> [Int?] {
-        Array(repeating: Int?.none, count: cellCount(for: boardSize))
+    private func emptyClues() -> [Int?] {
+        Array(repeating: Int?.none, count: cellCount())
     }
 
-    private func cellCount(for boardSize: BoardSize = .standard) -> Int {
-        boardSize.size * boardSize.size
+    private func cellCount() -> Int {
+        BoardSize.standard.size * BoardSize.standard.size
     }
 
-    private func index(for position: Position, boardSize: BoardSize = .standard) -> Int {
-        position.row * boardSize.size + position.column
+    private func index(for position: Position) -> Int {
+        position.row * BoardSize.standard.size + position.column
+    }
+
+    private func digits(_ values: ClosedRange<Int>) -> Set<Digit> {
+        Set(values.map(Digit.init))
+    }
+
+    private func digits(_ values: [Int]) -> Set<Digit> {
+        Set(values.map(Digit.init))
     }
 
     private struct StaticBoardSolver: BoardSolver {

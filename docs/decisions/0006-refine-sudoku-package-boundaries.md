@@ -21,7 +21,8 @@ removed from `SudokuCore`. Standard 9x9 rule topology now lives inside
 2026-05-06 amendment: `BoardSize` was added to `SudokuCore` as a minimal board
 size configuration value. `SudokuDomain.Board` receives a board size value
 instead of exposing board dimensions as static properties, and it interprets
-that size for cell counts, position indexing, digit bounds, and constraint groups.
+that size for cell counts, position indexing, digit bounds, and row, column, and
+block positions.
 `SudokuPuzzleEngine` keeps its internal standard 9x9 topology until engine
 configuration becomes necessary.
 
@@ -31,6 +32,12 @@ algorithm implementations named by strategy, such as `MRVBitmaskBoardSolver`
 and `RandomizedBoardGenerator`. Board generation uses copyable configuration on
 the generator instance plus a mutating `generate()` effect. `PuzzleGrid` and the
 validator family are engine internals, not app-facing API.
+
+2026-05-10 amendment: `BoardSize` was narrowed to a standard-only enum. The
+project currently models standard 9x9 Sudoku only. `BoardSize.standard` remains
+as shared vocabulary for board dimensions, but `SudokuDomain.Board` no longer
+accepts arbitrary size injection and solver/generator contracts no longer expose
+unsupported-size errors.
 
 ## Status
 
@@ -49,12 +56,13 @@ and topology shared by every Sudoku module, while clues, entries, and
 ## Decision
 
 Keep `SudokuCore` as the shared foundation package. It owns primitive values
-such as `Digit` and `Position`, plus minimal Sudoku structure such as
+such as `Digit` and `Position`, plus standard board vocabulary such as
 `BoardSize`. It does not define app-facing rule violations, duplicate scan
 results, business errors, or engine-facing validation issues.
 
 Create `SudokuDomain` for app-facing Sudoku state. It depends on `SudokuCore`
-and owns `Cell`, `Board`, `SudokuRules`, `SudokuRuleViolation`,
+and owns `Cell`, `Board`, `Rule`, `Violation`, `RowRule`, `ColumnRule`,
+`BlockRule`, `RowsRule`, `ColumnsRule`, `BlocksRule`, `UniqueRule`,
 `SudokuDomainError`, `BoardSolver`, and `BoardGenerator`.
 
 Make `SudokuPuzzleEngine` depend on `SudokuDomain` and `SudokuCore`. Its public
@@ -69,8 +77,13 @@ through package dependencies unless app code directly imports it.
 - `SudokuCore` no longer references app-facing board state.
 - `SudokuPuzzleEngine` now depends on `SudokuDomain`, making Domain the shared
   board vocabulary for solver and generator use.
-- Standard 9x9 constants and row, column, and block group generation are
-  still duplicated internally until a real topology abstraction is needed.
+- `Board` owns standard row, column, and block position topology, but it does
+  not own validation rules. `RowRule`, `ColumnRule`, and `BlockRule` each
+  validate one concrete row, column, or block. `RowsRule`, `ColumnsRule`, and
+  `BlocksRule` aggregate those single rules for a board. `UniqueRule` composes
+  the three aggregate rules to model standard Sudoku uniqueness. Engine
+  internals still keep their own standard 9x9 topology until a real topology
+  abstraction is needed.
 - The puzzle engine public API intentionally breaks from `Solver`/`Generator`
   and `PuzzleGrid` to Board-first contracts while the API is still early.
 - Future difficulty scoring can share a topology abstraction later without

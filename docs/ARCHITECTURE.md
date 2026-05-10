@@ -14,7 +14,7 @@ Features
   SwiftUI views plus small observable stores
 
 Core packages
-  SudokuCore shared Sudoku primitive values and board size configuration
+  SudokuCore shared Sudoku primitive values and standard board vocabulary
   SudokuDomain app-facing board model, clues, entries, rules, and
   solver/generator contracts
   SudokuPuzzleEngine pure board solving and generation implementations
@@ -28,10 +28,13 @@ Shared
   Theme system, reusable controls, extensions, design tokens
 ```
 
-`SudokuCore` owns shared primitive values and minimal board size configuration.
-`SudokuDomain` owns the app-facing board model and the public board solver and
-generator contracts. `SudokuPuzzleEngine` depends on `SudokuDomain` and provides
-algorithm implementations such as `MRVBitmaskBoardSolver` and
+`SudokuCore` owns shared primitive values and standard board vocabulary.
+`SudokuDomain` owns the app-facing standard board model, board topology
+interpretation, rules such as `RowRule`, `ColumnRule`, `BlockRule`,
+`RowsRule`, `ColumnsRule`, `BlocksRule`, and `UniqueRule`, violations, and the
+public board solver and generator contracts.
+`SudokuPuzzleEngine` depends on `SudokuDomain` and provides algorithm
+implementations such as `MRVBitmaskBoardSolver` and
 `RandomizedBoardGenerator`. Board generators hold a copyable
 `BoardGenerationConfiguration` and perform generation through a mutating
 `generate()` effect. Engine-only numeric grid and validator types are

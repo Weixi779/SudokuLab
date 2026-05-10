@@ -41,11 +41,7 @@ public struct UniqueRule: Rule, Sendable {
         }
 
         func validate(_ board: Board) -> [Violation] {
-            uniqued(
-                rules.flatMap { rule in
-                    rule.validate(board)
-                }
-            )
+            uniqued(rules.flatMap { $0.validate(board) })
         }
 
         func candidates(at position: Position, on board: Board) -> Set<Digit>? {

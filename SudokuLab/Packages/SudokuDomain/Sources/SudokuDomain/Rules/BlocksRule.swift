@@ -10,22 +10,14 @@ public struct BlocksRule: Rule, Sendable {
     }
 
     public func validate(_ board: Board) -> [Violation] {
-        rules.flatMap { rule in
-            rule.validate(board)
-        }
+        rules.flatMap { $0.validate(board) }
     }
 
     public func candidates(at position: Position, on board: Board) -> Set<Digit>? {
         guard board.contains(position) else { return [] }
 
-        for rule in rules {
-            guard let candidates = rule.candidates(at: position, on: board) else {
-                continue
-            }
-
-            return candidates
-        }
-
-        return nil
+        return rules.lazy
+            .compactMap { $0.candidates(at: position, on: board) }
+            .first
     }
 }

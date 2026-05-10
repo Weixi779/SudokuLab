@@ -212,10 +212,10 @@ struct SudokuDomainTests {
     }
 
     @Test func boardRejectsInvalidCellCount() {
-        #expect(throws: SudokuDomainError.invalidCellCount(value: 0, expected: 81)) {
+        #expect(throws: BoardError.invalidCellCount(value: 0, expected: 81)) {
             try Board(cells: [])
         }
-        #expect(throws: SudokuDomainError.invalidCellCount(value: 0, expected: 81)) {
+        #expect(throws: BoardError.invalidCellCount(value: 0, expected: 81)) {
             try Board(clues: [])
         }
     }
@@ -224,20 +224,20 @@ struct SudokuDomainTests {
         var cells = emptyCells()
         cells[index(for: Position(row: 0, column: 0))] = .entry(Digit(10))
 
-        #expect(throws: SudokuDomainError.invalidDigit(value: 10, maximum: 9)) {
+        #expect(throws: BoardError.invalidDigit(value: 10, maximum: 9)) {
             try Board(cells: cells)
         }
 
         var clues = emptyClues()
         clues[index(for: Position(row: 0, column: 0))] = 10
 
-        #expect(throws: SudokuDomainError.invalidDigit(value: 10, maximum: 9)) {
+        #expect(throws: BoardError.invalidDigit(value: 10, maximum: 9)) {
             try Board(clues: clues)
         }
 
         var board = Board()
 
-        #expect(throws: SudokuDomainError.invalidDigit(value: 10, maximum: 9)) {
+        #expect(throws: BoardError.invalidDigit(value: 10, maximum: 9)) {
             try board.setEntry(Digit(10), at: Position(row: 0, column: 0))
         }
     }
@@ -246,11 +246,11 @@ struct SudokuDomainTests {
         let position = Position(row: 9, column: 0)
         var board = Board()
 
-        #expect(throws: SudokuDomainError.invalidPosition(position)) {
+        #expect(throws: BoardError.invalidPosition(position)) {
             try board.cell(at: position)
         }
 
-        #expect(throws: SudokuDomainError.invalidPosition(position)) {
+        #expect(throws: BoardError.invalidPosition(position)) {
             try board.setEntry(Digit(1), at: position)
         }
     }
@@ -409,10 +409,10 @@ struct SudokuDomainTests {
         var board = try Board(clues: clues([(0, 0, 5)]))
         let position = Position(row: 0, column: 0)
 
-        #expect(throws: SudokuDomainError.cannotChangeClue(position)) {
+        #expect(throws: BoardError.cannotChangeClue(position)) {
             try board.setEntry(Digit(8), at: position)
         }
-        #expect(throws: SudokuDomainError.cannotChangeClue(position)) {
+        #expect(throws: BoardError.cannotChangeClue(position)) {
             try board.setEntry(nil, at: position)
         }
     }

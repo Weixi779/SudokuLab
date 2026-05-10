@@ -17,7 +17,7 @@ public struct Board: Sendable {
         let boardSize = BoardSize.standard
 
         guard cells.count == boardSize.cellCount else {
-            throw SudokuDomainError.invalidCellCount(
+            throw BoardError.invalidCellCount(
                 value: cells.count,
                 expected: boardSize.cellCount
             )
@@ -32,7 +32,7 @@ public struct Board: Sendable {
         let boardSize = BoardSize.standard
 
         guard clues.count == boardSize.cellCount else {
-            throw SudokuDomainError.invalidCellCount(
+            throw BoardError.invalidCellCount(
                 value: clues.count,
                 expected: boardSize.cellCount
             )
@@ -111,7 +111,7 @@ extension Board {
         let cell = cells[index]
 
         guard !cell.isClue else {
-            throw SudokuDomainError.cannotChangeClue(position)
+            throw BoardError.cannotChangeClue(position)
         }
 
         if let digit {
@@ -146,7 +146,7 @@ extension Board {
 
     fileprivate static func validate(_ digit: Digit, boardSize: BoardSize) throws {
         guard boardSize.digitValues.contains(digit.value) else {
-            throw SudokuDomainError.invalidDigit(value: digit.value, maximum: boardSize.sideLength)
+            throw BoardError.invalidDigit(value: digit.value, maximum: boardSize.sideLength)
         }
     }
 }
@@ -156,7 +156,7 @@ extension Board {
 extension Board {
     fileprivate func index(for position: Position) throws -> Int {
         guard contains(position) else {
-            throw SudokuDomainError.invalidPosition(position)
+            throw BoardError.invalidPosition(position)
         }
 
         return uncheckedIndex(for: position)

@@ -30,8 +30,8 @@ configuration becomes necessary.
 contracts. `SudokuBoardEngine` depends on `SudokuDomain` and exposes concrete
 algorithm implementations named by strategy, such as `MRVBitmaskBoardSolver`
 and `RandomizedBoardGenerator`. Board generation uses copyable configuration on
-the generator instance plus a mutating `generate()` effect. `PuzzleGrid` and the
-validator family are engine internals, not app-facing API.
+the generator instance plus a mutating `generate()` effect. Engine digit
+buffers are private implementation details, not app-facing API.
 
 2026-05-10 amendment: `BoardSize` was narrowed to a standard-only enum. The
 project currently models standard 9x9 Sudoku only. `BoardSize.standard` remains
@@ -42,6 +42,10 @@ unsupported-size errors.
 2026-05-10 amendment: `BoardTopology` was extracted as a public
 `SudokuDomain` value. `Board` exposes its topology and delegates position,
 row, column, block, and index behavior to it.
+
+2026-05-10 amendment: the `SudokuBoardEngine` validator family was removed.
+Rule validation belongs to `SudokuDomain`; the engine keeps only
+solver/generator algorithms and private digit buffers.
 
 ## Status
 
@@ -70,8 +74,8 @@ and owns `Cell`, `Board`, `BoardTopology`, `Rule`, `Violation`, `RowRule`,
 `UniqueRule`, `SudokuDomainError`, `BoardSolver`, and `BoardGenerator`.
 
 Make `SudokuBoardEngine` depend on `SudokuDomain` and `SudokuCore`. Its public
-surface implements Domain's board contracts, while numeric `PuzzleGrid` and
-throwing validator types stay internal to the engine package.
+surface implements Domain's board contracts, while numeric digit buffers stay
+private to the engine package.
 
 The app links `SudokuDomain` and `SudokuBoardEngine`; `SudokuCore` enters
 through package dependencies unless app code directly imports it.
@@ -88,6 +92,6 @@ through package dependencies unless app code directly imports it.
   `BlocksRule` aggregate those single rules for a board. `UniqueRule` composes
   the three aggregate rules to model standard Sudoku uniqueness.
 - The board engine public API intentionally breaks from `Solver`/`Generator`
-  and `PuzzleGrid` to Board-first contracts while the API is still early.
+  and numeric grid types to Board-first contracts while the API is still early.
 - Engine algorithms and future difficulty scoring can share `BoardTopology`
   without coupling `SudokuCore` to app player semantics.

@@ -12,8 +12,12 @@ API is removed.
 
 2026-05-06 amendment: superseded by [0006](0006-refine-sudoku-package-boundaries.md).
 `SudokuBoardEngine` now depends on `SudokuDomain` for board solver/generator
-contracts. `PuzzleGrid` and the validator family are implementation details
-instead of the package's app-facing API.
+contracts. Engine digit buffers are implementation details instead of the
+package's app-facing API.
+
+2026-05-10 amendment: the engine validator family was removed. Domain owns
+rule validation; the engine keeps only solver/generator algorithms and their
+private digit buffers.
 
 ## Context
 
@@ -24,8 +28,8 @@ app-facing semantic model now isolated in `SudokuDomain`.
 
 `SudokuCore` expresses shared primitive values such as digits and positions.
 After the 2026-05-06 amendment, the board engine uses `SudokuDomain.Board`
-contracts publicly while keeping a numeric `PuzzleGrid` representation and
-standard 9x9 topology internally.
+contracts publicly while keeping a private numeric `BoardDigits` representation
+for solver/generator search state.
 
 ## Decision
 
@@ -34,7 +38,7 @@ Create a local Swift package named `SudokuBoardEngine` under
 
 The package now depends on `SudokuDomain` and implements its board solver and
 generator contracts. App-facing code should use `Board`, `BoardSolver`, and
-`BoardGenerator`; engine numeric grid types are reserved for internal
+`BoardGenerator`; engine numeric digit buffers are reserved for internal
 implementation and tests.
 
 The package currently supports only standard 9x9 Sudoku. Public API terms use:
@@ -44,12 +48,9 @@ The package currently supports only standard 9x9 Sudoku. Public API terms use:
   stores a copyable `BoardGenerationConfiguration` and generates through a
   mutating `generate()` effect.
 
-`0` represents an empty cell. Digits `1...9` represent filled cells. Existing
-duplicate digits are accepted by the internal numeric grid as structurally valid
-input, then treated as an unsolvable board by the solver.
-
-Validators still use throwing APIs internally for engine tests and generator
-checks, but they are no longer the public app-facing validation contract.
+Inside engine digit buffers, `0` represents an empty cell and digits `1...9`
+represent filled cells. Existing duplicate digits are accepted as structurally
+valid input, then treated as an unsolvable board by the solver.
 
 The initial solver uses deterministic bitmask backtracking with a minimum
 remaining values cell choice. DLX, exact cover, or other algorithms can replace
@@ -68,7 +69,7 @@ future work.
 ## Consequences
 
 - Package tests use ordinary `import SudokuBoardEngine` for public solver and
-  generator behavior, and `@testable import` for internal grid/validator checks.
+  generator behavior.
 - The app can link `SudokuBoardEngine` as an implementation of
   `SudokuDomain` board contracts.
 - Benchmarks can be added later to compare internal solver/generator strategies

@@ -5,44 +5,32 @@ public struct MRVBitmaskBoardSolver: BoardSolver {
     public init() {}
 
     public func solve(_ board: Board) throws -> Board? {
-        let grid = Self.puzzleGrid(from: board)
-        guard let solution = solve(grid) else { return nil }
+        let digits = BoardDigits(board: board)
+        guard let solution = solve(digits) else { return nil }
 
         return try Self.board(from: solution, preserving: board)
     }
 
     public func solutionCount(for board: Board, limit: Int = 2) throws -> Int {
-        return solutionCount(for: Self.puzzleGrid(from: board), limit: limit)
+        return solutionCount(for: BoardDigits(board: board), limit: limit)
     }
 
-    func solve(_ grid: PuzzleGrid) -> PuzzleGrid? {
-        guard var state = SolverState(grid) else { return nil }
+    func solve(_ digits: BoardDigits) -> BoardDigits? {
+        guard var state = SolverState(digits) else { return nil }
         guard state.solveFirst() else { return nil }
 
-        return PuzzleGrid(uncheckedCells: state.cells)
+        return BoardDigits(uncheckedDigits: state.digits)
     }
 
-    func solutionCount(for grid: PuzzleGrid, limit: Int = 2) -> Int {
+    func solutionCount(for digits: BoardDigits, limit: Int = 2) -> Int {
         guard limit > 0 else { return 0 }
-        guard var state = SolverState(grid) else { return 0 }
+        guard var state = SolverState(digits) else { return 0 }
 
         return state.solutionCount(limit: limit)
     }
 
-    func hasUniqueSolution(_ grid: PuzzleGrid) -> Bool {
-        solutionCount(for: grid, limit: 2) == 1
-    }
-
-    private static func puzzleGrid(from board: Board) -> PuzzleGrid {
-        PuzzleGrid(
-            uncheckedCells: board.positions.map { position in
-                board[position].digit?.value ?? 0
-            }
-        )
-    }
-
-    private static func board(from solution: PuzzleGrid, preserving board: Board) throws -> Board {
-        let cells = zip(board.positions, solution.cells).map { position, digit -> Cell in
+    private static func board(from solution: BoardDigits, preserving board: Board) throws -> Board {
+        let cells = zip(board.positions, solution.digits).map { position, digit -> Cell in
             let originalCell = board[position]
             guard originalCell.digit == nil else { return originalCell }
             guard digit != 0 else { return .empty }
@@ -55,27 +43,27 @@ public struct MRVBitmaskBoardSolver: BoardSolver {
 }
 
 private struct SolverState {
-    private static let allCandidatesMask = (1 << StandardGrid.size) - 1
+    private static let allCandidatesMask = (1 << BoardDigits.size) - 1
 
-    var cells: [Int]
+    var digits: [Int]
 
     private var rowMasks: [Int]
     private var columnMasks: [Int]
     private var blockMasks: [Int]
 
-    init?(_ grid: PuzzleGrid) {
-        cells = grid.cells
-        rowMasks = Array(repeating: 0, count: StandardGrid.size)
-        columnMasks = Array(repeating: 0, count: StandardGrid.size)
-        blockMasks = Array(repeating: 0, count: StandardGrid.size)
+    init?(_ digits: BoardDigits) {
+        self.digits = digits.digits
+        rowMasks = Array(repeating: 0, count: BoardDigits.size)
+        columnMasks = Array(repeating: 0, count: BoardDigits.size)
+        blockMasks = Array(repeating: 0, count: BoardDigits.size)
 
-        for index in cells.indices {
-            let digit = cells[index]
+        for index in self.digits.indices {
+            let digit = self.digits[index]
             guard digit != 0 else { continue }
 
-            let row = StandardGrid.row(forIndex: index)
-            let column = StandardGrid.column(forIndex: index)
-            let block = StandardGrid.block(row: row, column: column)
+            let row = BoardDigits.topology.row(forIndex: index)
+            let column = BoardDigits.topology.column(forIndex: index)
+            let block = BoardDigits.topology.block(row: row, column: column)
             let bit = Self.bit(for: digit)
 
             guard rowMasks[row] & bit == 0,
@@ -144,7 +132,7 @@ private struct SolverState {
         var bestCandidates = 0
         var bestCount = Int.max
 
-        for index in cells.indices where cells[index] == 0 {
+        for index in digits.indices where digits[index] == 0 {
             let candidates = candidatesMask(at: index)
             let count = candidates.nonzeroBitCount
 
@@ -168,30 +156,30 @@ private struct SolverState {
     }
 
     private func candidatesMask(at index: Int) -> Int {
-        let row = StandardGrid.row(forIndex: index)
-        let column = StandardGrid.column(forIndex: index)
-        let block = StandardGrid.block(row: row, column: column)
+        let row = BoardDigits.topology.row(forIndex: index)
+        let column = BoardDigits.topology.column(forIndex: index)
+        let block = BoardDigits.topology.block(row: row, column: column)
 
         return Self.allCandidatesMask & ~(rowMasks[row] | columnMasks[column] | blockMasks[block])
     }
 
     private mutating func place(_ digit: Int, at index: Int, bit: Int) {
-        let row = StandardGrid.row(forIndex: index)
-        let column = StandardGrid.column(forIndex: index)
-        let block = StandardGrid.block(row: row, column: column)
+        let row = BoardDigits.topology.row(forIndex: index)
+        let column = BoardDigits.topology.column(forIndex: index)
+        let block = BoardDigits.topology.block(row: row, column: column)
 
-        cells[index] = digit
+        digits[index] = digit
         rowMasks[row] |= bit
         columnMasks[column] |= bit
         blockMasks[block] |= bit
     }
 
     private mutating func remove(at index: Int, bit: Int) {
-        let row = StandardGrid.row(forIndex: index)
-        let column = StandardGrid.column(forIndex: index)
-        let block = StandardGrid.block(row: row, column: column)
+        let row = BoardDigits.topology.row(forIndex: index)
+        let column = BoardDigits.topology.column(forIndex: index)
+        let block = BoardDigits.topology.block(row: row, column: column)
 
-        cells[index] = 0
+        digits[index] = 0
         rowMasks[row] &= ~bit
         columnMasks[column] &= ~bit
         blockMasks[block] &= ~bit

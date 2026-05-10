@@ -20,10 +20,10 @@
 - Extract shared Sudoku primitive values into a pure Swift `SudokuCore` package.
 - Extract the app-facing grid, cells, clues, entries, and player rule validator
   into a pure Swift `SudokuDomain` package.
-- Extract the pure Swift `SudokuBoardEngine` package for solving, validation,
-  solution counting, uniqueness checks, generation, and future rating.
-- Add deterministic solver, validator, uniqueness, and generated-puzzle tests
-  with seeded randomness.
+- Extract the pure Swift `SudokuBoardEngine` package for solving, solution
+  counting, uniqueness checks, generation, and future rating.
+- Add deterministic solver, uniqueness, and generated-puzzle tests with seeded
+  randomness.
 
 ## Phase 3: Game Feature
 

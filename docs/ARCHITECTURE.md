@@ -37,8 +37,8 @@ public board solver and generator contracts.
 implementations such as `MRVBitmaskBoardSolver` and
 `RandomizedBoardGenerator`. Board generators hold a copyable
 `BoardGenerationConfiguration` and perform generation through a mutating
-`generate()` effect. Engine-only numeric grid and validator types are
-implementation details rather than app-facing contracts.
+`generate()` effect. Engine-only digit buffers are implementation details
+rather than app-facing contracts; rule validation stays in `SudokuDomain`.
 
 ## State Management
 

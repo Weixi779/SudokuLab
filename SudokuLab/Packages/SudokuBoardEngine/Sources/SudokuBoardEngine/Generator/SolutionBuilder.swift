@@ -1,13 +1,11 @@
-import SudokuCore
-
 struct SolutionBuilder {
-    private static let allCandidatesMask = (1 << StandardGrid.size) - 1
+    private static let allCandidatesMask = (1 << BoardDigits.size) - 1
 
-    var cells = Array(repeating: 0, count: StandardGrid.cellCount)
+    var digits = Array(repeating: 0, count: BoardDigits.cellCount)
 
-    private var rowMasks = Array(repeating: 0, count: StandardGrid.size)
-    private var columnMasks = Array(repeating: 0, count: StandardGrid.size)
-    private var blockMasks = Array(repeating: 0, count: StandardGrid.size)
+    private var rowMasks = Array(repeating: 0, count: BoardDigits.size)
+    private var columnMasks = Array(repeating: 0, count: BoardDigits.size)
+    private var blockMasks = Array(repeating: 0, count: BoardDigits.size)
 
     mutating func fill<Random: RandomNumberGenerator>(using randomNumberGenerator: inout Random)
         -> Bool
@@ -35,7 +33,7 @@ struct SolutionBuilder {
         var bestCandidates = 0
         var bestCount = Int.max
 
-        for index in cells.indices where cells[index] == 0 {
+        for index in digits.indices where digits[index] == 0 {
             let candidates = candidatesMask(at: index)
             let count = candidates.nonzeroBitCount
 
@@ -59,30 +57,30 @@ struct SolutionBuilder {
     }
 
     private func candidatesMask(at index: Int) -> Int {
-        let row = StandardGrid.row(forIndex: index)
-        let column = StandardGrid.column(forIndex: index)
-        let block = StandardGrid.block(row: row, column: column)
+        let row = BoardDigits.topology.row(forIndex: index)
+        let column = BoardDigits.topology.column(forIndex: index)
+        let block = BoardDigits.topology.block(row: row, column: column)
 
         return Self.allCandidatesMask & ~(rowMasks[row] | columnMasks[column] | blockMasks[block])
     }
 
     private mutating func place(_ digit: Int, at index: Int, bit: Int) {
-        let row = StandardGrid.row(forIndex: index)
-        let column = StandardGrid.column(forIndex: index)
-        let block = StandardGrid.block(row: row, column: column)
+        let row = BoardDigits.topology.row(forIndex: index)
+        let column = BoardDigits.topology.column(forIndex: index)
+        let block = BoardDigits.topology.block(row: row, column: column)
 
-        cells[index] = digit
+        digits[index] = digit
         rowMasks[row] |= bit
         columnMasks[column] |= bit
         blockMasks[block] |= bit
     }
 
     private mutating func remove(at index: Int, bit: Int) {
-        let row = StandardGrid.row(forIndex: index)
-        let column = StandardGrid.column(forIndex: index)
-        let block = StandardGrid.block(row: row, column: column)
+        let row = BoardDigits.topology.row(forIndex: index)
+        let column = BoardDigits.topology.column(forIndex: index)
+        let block = BoardDigits.topology.block(row: row, column: column)
 
-        cells[index] = 0
+        digits[index] = 0
         rowMasks[row] &= ~bit
         columnMasks[column] &= ~bit
         blockMasks[block] &= ~bit
@@ -92,7 +90,7 @@ struct SolutionBuilder {
         var digits: [Int] = []
         var candidates = mask
 
-        digits.reserveCapacity(StandardGrid.size)
+        digits.reserveCapacity(BoardDigits.size)
 
         while candidates != 0 {
             let bit = candidates & -candidates

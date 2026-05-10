@@ -1,5 +1,3 @@
-import SudokuCore
-
 public protocol BoardGenerator: Sendable {
     var configuration: BoardGenerationConfiguration { get set }
 
@@ -25,14 +23,9 @@ public struct GeneratedBoard: Equatable, Sendable {
 }
 
 public struct BoardGenerationConfiguration: Equatable, Sendable {
-    public var boardSize: BoardSize
     public var goal: BoardGenerationGoal
 
-    public init(
-        boardSize: BoardSize = .standard,
-        goal: BoardGenerationGoal = .locallyMinimal
-    ) {
-        self.boardSize = boardSize
+    public init(goal: BoardGenerationGoal = .locallyMinimal) {
         self.goal = goal
     }
 }
@@ -43,7 +36,6 @@ public enum BoardGenerationGoal: Equatable, Sendable {
 }
 
 public enum BoardGenerationError: Error, Equatable, Sendable {
-    case unsupportedBoardSize(BoardSize)
     case invalidTargetClueCount(Int)
     case unableToGenerateSolution
     case unableToReachTargetClueCount(target: Int, actual: Int)

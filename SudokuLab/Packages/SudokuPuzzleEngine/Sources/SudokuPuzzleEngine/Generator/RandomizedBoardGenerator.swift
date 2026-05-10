@@ -14,10 +14,6 @@ public struct RandomizedBoardGenerator<Random: RandomNumberGenerator & Sendable>
     }
 
     public mutating func generate() throws -> GeneratedBoard {
-        guard configuration.boardSize == .standard else {
-            throw BoardGenerationError.unsupportedBoardSize(configuration.boardSize)
-        }
-
         let targetClueCount = try validatedTargetClueCount(for: configuration.goal)
         guard let solution = generateSolution() else {
             throw BoardGenerationError.unableToGenerateSolution

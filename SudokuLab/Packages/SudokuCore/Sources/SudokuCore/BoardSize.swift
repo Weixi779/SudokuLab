@@ -1,11 +1,17 @@
-public struct BoardSize: Equatable, Hashable, Sendable {
-    public static let standard = BoardSize(size: 9, blockSide: 3)
+public enum BoardSize: Equatable, Hashable, Sendable {
+    case standard
 
-    public let size: Int
-    public let blockSide: Int
+    public var size: Int {
+        switch self {
+        case .standard:
+            9
+        }
+    }
 
-    public init(size: Int, blockSide: Int) {
-        self.size = size
-        self.blockSide = blockSide
+    public var blockSide: Int {
+        switch self {
+        case .standard:
+            3
+        }
     }
 }

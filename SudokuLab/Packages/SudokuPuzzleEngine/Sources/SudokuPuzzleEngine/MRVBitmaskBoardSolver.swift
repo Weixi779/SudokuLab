@@ -5,8 +5,6 @@ public struct MRVBitmaskBoardSolver: BoardSolver {
     public init() {}
 
     public func solve(_ board: Board) throws -> Board? {
-        try Self.validateSupportedBoardSize(board.boardSize)
-
         let grid = Self.puzzleGrid(from: board)
         guard let solution = solve(grid) else { return nil }
 
@@ -14,8 +12,6 @@ public struct MRVBitmaskBoardSolver: BoardSolver {
     }
 
     public func solutionCount(for board: Board, limit: Int = 2) throws -> Int {
-        try Self.validateSupportedBoardSize(board.boardSize)
-
         return solutionCount(for: Self.puzzleGrid(from: board), limit: limit)
     }
 
@@ -37,12 +33,6 @@ public struct MRVBitmaskBoardSolver: BoardSolver {
         solutionCount(for: grid, limit: 2) == 1
     }
 
-    private static func validateSupportedBoardSize(_ boardSize: BoardSize) throws {
-        guard boardSize == .standard else {
-            throw BoardSolvingError.unsupportedBoardSize(boardSize)
-        }
-    }
-
     private static func puzzleGrid(from board: Board) -> PuzzleGrid {
         PuzzleGrid(
             uncheckedCells: board.positions.map { position in
@@ -60,7 +50,7 @@ public struct MRVBitmaskBoardSolver: BoardSolver {
             return .entry(Digit(digit))
         }
 
-        return try Board(cells: cells, boardSize: board.boardSize)
+        return try Board(cells: cells)
     }
 }
 

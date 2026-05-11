@@ -71,7 +71,7 @@ results, business errors, or engine-facing validation issues.
 Create `SudokuDomain` for app-facing Sudoku state. It depends on `SudokuCore`
 and owns `Cell`, `Board`, `BoardTopology`, `Rule`, `Violation`, `RowRule`,
 `ColumnRule`, `BlockRule`, `RowsRule`, `ColumnsRule`, `BlocksRule`,
-`UniqueRule`, `SudokuDomainError`, `BoardSolver`, and `BoardGenerator`.
+`UniqueRule`, `BoardError`, `BoardSolver`, and `BoardGenerator`.
 
 Make `SudokuBoardEngine` depend on `SudokuDomain` and `SudokuCore`. Its public
 surface implements Domain's board contracts, while numeric digit buffers stay

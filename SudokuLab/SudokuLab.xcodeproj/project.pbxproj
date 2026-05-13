@@ -40,9 +40,9 @@
 		60BC8F532FA4EE2A00FB0032 /* Exceptions for "Packages" folder in "SudokuLab" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
+				SudokuBoardEngine,
 				SudokuCore,
 				SudokuDomain,
-				SudokuBoardEngine,
 			);
 			target = 60BC8DEF2FA4CB8C00FB0032 /* SudokuLab */;
 		};

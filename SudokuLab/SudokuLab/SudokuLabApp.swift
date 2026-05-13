@@ -1,17 +1,21 @@
-//
-//  SudokuLabApp.swift
-//  SudokuLab
-//
-//  Created by 孙世伟 on 2026/5/1.
-//
-
 import SwiftUI
 
 @main
 struct SudokuLabApp: App {
+    @Environment(\.colorScheme) private var colorScheme
+    @State private var themeProvider = AppContainer.themeProvider()
+
     var body: some Scene {
         WindowGroup {
             RootView()
+                .environment(
+                    \.appTheme,
+                    themeProvider.theme(
+                        for: AppThemeContext(systemColorScheme: colorScheme)
+                    )
+                )
+                .environment(\.themeProvider, themeProvider)
+                .preferredColorScheme(themeProvider.preferredColorScheme)
         }
     }
 }
